@@ -367,6 +367,53 @@
 <script>
     // --- DATABASE (IndexedDB) ---
     let db;
+    const initialVocab = [
+        { en: "Postpone", fr: "Remettre à plus tard / reporter" },
+        { en: "Implement", fr: "Appliquer" },
+        { en: "else", fr: "Quoi d'autre" },
+        { en: "Other ways", fr: "Autre manières / autre chemins" },
+        { en: "Get used to", fr: "S'habituer à" },
+        { en: "Be used to", fr: "Etre habitué à" },
+        { en: "I am getting used to", fr: "Je suis en train de m'habituer à" },
+        { en: "Foot traffic", fr: "Circulation piétonne" },
+        { en: "Defer", fr: "Reporter" },
+        { en: "Diter", fr: "Dire" },
+        { en: "Differ", fr: "Différer" },
+        { en: "Deflect", fr: "Dévier" },
+        { en: "Share price", fr: "Action (d'entreprise)" },
+        { en: "So far", fr: "Jusqu'à présent" },
+        { en: "A survey", fr: "Enquête, sondage" },
+        { en: "Ensure", fr: "S'assurer" },
+        { en: "The board of director", fr: "Le conseil d'administration" },
+        { en: "Currently", fr: "Actuellement (action en cours)" },
+        { en: "Quarter", fr: "Trimestre" },
+        { en: "Upcoming", fr: "À venir" },
+        { en: "By the time", fr: "Au moment de/où" },
+        { en: "Regarding", fr: "Concernant" },
+        { en: "Complaint", fr: "Plainte" },
+        { en: "Roughly", fr: "Grossièrement" },
+        { en: "Strikes", fr: "Grève / force de frappe" },
+        { en: "Wounded", fr: "Blessé" },
+        { en: "Ceasefire", fr: "Cessez-le-feu" },
+        { en: "Take over", fr: "Prendre le contrôle" },
+        { en: "Conveyance", fr: "Transfert (logistique)" },
+        { en: "Convenience", fr: "Pratique / commode" },
+        { en: "Unforeseen", fr: "Imprévu" },
+        { en: "Barring", fr: "Sauf en cas de" },
+        { en: "Assuming", fr: "En supposant" },
+        { en: "Stated", fr: "Déclaré" },
+        { en: "Compliant", fr: "Conforme" },
+        { en: "Revamp", fr: "Rénover" },
+        { en: "Relapse", fr: "Rechute" },
+        { en: "Accrued", fr: "Accumuler / réunir progressivement" },
+        { en: "Adhered", fr: "Respecter" },
+        { en: "Accosted", fr: "Abordé" },
+        { en: "Comply", fr: "Se conformer" },
+        { en: "Curtail", fr: "Limiter / réduire" },
+        { en: "Commitment", fr: "Engagement" },
+        { en: "Prompted", fr: "Provoqué / suscité par" }
+    ];
+
     const request = indexedDB.open("VocabDB", 1);
 
     request.onupgradeneeded = (e) => {
@@ -377,8 +424,31 @@
 
     request.onsuccess = (e) => {
         db = e.target.result;
+        seedDatabase();
         updateStats();
     };
+
+    async function seedDatabase() {
+        const tx = db.transaction("words", "readwrite");
+        const store = tx.objectStore("words");
+        const countReq = store.count();
+        
+        countReq.onsuccess = () => {
+            if (countReq.result === 0) {
+                initialVocab.forEach(item => {
+                    store.add({
+                        ...item,
+                        repetition: 0,
+                        interval: 0,
+                        efactor: 2.5,
+                        direction: 'FR_EN',
+                        nextReview: Date.now(),
+                        createdAt: Date.now()
+                    });
+                });
+            }
+        };
+    }
 
     // --- APP STATE ---
     let sessionQueue = [];
