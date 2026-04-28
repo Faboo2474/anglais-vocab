@@ -70,10 +70,10 @@
 
     <!-- REVIEW -->
     <div id="view-review" class="view">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; justify-content:space-between; align-items:center; position: sticky; top: 0; background: var(--background); z-index: 10; padding-bottom: 10px;">
             <span id="review-progress" style="font-size:12px; color:var(--text-muted)">0/0</span>
             <span id="mode-badge" style="background:var(--primary); padding:3px 10px; border-radius:15px; font-size:10px;">EXERCICE</span>
-            <span onclick="switchView('dashboard')" style="color:var(--text-muted)">Quitter</span>
+            <span onclick="switchView('dashboard')" style="color:var(--text-muted); cursor: pointer; padding: 5px;">Quitter</span>
         </div>
         <div class="card">
             <div id="card-question" style="font-size: 11px; color:var(--text-muted); margin-bottom:10px;">...</div>
@@ -268,11 +268,14 @@
 
     async function showCard() {
         const w = session[currentIndex];
-        // 10 premières : Flash, après 10 : Cloze
-        const mode = (currentIndex < 10) ? 'flash' : 'cloze';
-        
+        const isOnline = navigator.onLine;
+
+        // Si hors ligne, on force le mode Flash
+        let mode = (currentIndex < 10) ? 'flash' : 'cloze';
+        if (!isOnline && mode === 'cloze') mode = 'flash';
+
         document.getElementById('review-progress').innerText = (currentIndex+1)+"/"+session.length;
-        document.getElementById('mode-badge').innerText = mode === 'cloze' ? 'CHALLENGE IA' : 'MÉMORISATION';
+        document.getElementById('mode-badge').innerText = mode === 'cloze' ? 'CHALLENGE IA' : (isOnline ? 'MÉMORISATION' : 'MÉMO (HORS-LIGNE)');
         document.getElementById('mode-badge').style.background = mode === 'cloze' ? 'var(--secondary)' : 'var(--primary)';
         
         document.getElementById('card-question').innerText = w.direction === 'FR_EN' ? "Traduction Anglaise ?" : "Traduction Française ?";
