@@ -4,155 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VocabMaster - SRS</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#6366f1">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-
     <style>
-        :root {
-            --primary: #6366f1;
-            --primary-light: #818cf8;
-            --secondary: #ec4899;
-            --success: #22c55e;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --background: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --safe-top: env(safe-area-inset-top);
-            --safe-bottom: env(safe-area-inset-bottom);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--background);
-            color: var(--text);
-            height: 100vh;
-            overflow: hidden;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.1) 0px, transparent 50%);
-        }
-
-        #app {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            padding-top: var(--safe-top, 20px);
-            padding-bottom: var(--safe-bottom, 20px);
-        }
-
-        h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; background: linear-gradient(to right, #818cf8, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        p { color: var(--text-muted); line-height: 1.5; }
-
-        .view {
-            flex: 1;
-            display: none;
-            overflow-y: auto;
-            padding: 1.5rem;
-        }
-
-        .view.active { display: flex; flex-direction: column; animation: fadeIn 0.3s ease-out; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
-        .stat-card { background: var(--card-bg); backdrop-filter: blur(10px); padding: 1.2rem; border-radius: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
-        .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--primary-light); }
-        .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
-
-        .start-btn {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white; border: none; padding: 1.2rem; border-radius: 1.2rem; font-size: 1.1rem; font-weight: 600;
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4); cursor: pointer; margin-top: auto;
-        }
-
-        .review-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; perspective: 1000px; }
-        .card { width: 100%; height: 350px; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
-        .card.flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--card-bg); border-radius: 2rem; border: 1px solid rgba(255, 255, 255, 0.1); padding: 2rem; text-align: center; }
-        .card-back { transform: rotateY(180deg); }
-        .card-text { font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
-
-        .review-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; width: 100%; margin-top: 2rem; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-        .review-actions.visible { opacity: 1; pointer-events: auto; }
-        .score-btn { border: none; padding: 0.8rem 0.2rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
-
-        .form-group { margin-bottom: 1.5rem; }
-        input { width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 1rem; color: white; outline: none; }
-
-        .tab-bar { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding: 0.8rem 0; border-top: 1px solid rgba(255, 255, 255, 0.05); }
-        .tab-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 0.7rem; gap: 0.2rem; cursor: pointer; }
-        .tab-item.active { color: var(--primary-light); }
-        .badge { background: var(--secondary); color: white; padding: 0.1rem 0.4rem; border-radius: 0.4rem; font-size: 0.6rem; }
+        :root { --primary: #6366f1; --background: #0f172a; --text: #f8fafc; --text-muted: #94a3b8; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: sans-serif; background-color: var(--background); color: var(--text); height: 100vh; overflow: hidden; }
+        #app { height: 100%; display: flex; flex-direction: column; padding: 20px; }
+        .view { display: none; flex: 1; flex-direction: column; }
+        .view.active { display: flex; }
+        .card { background: rgba(30,41,59,0.8); border-radius: 20px; padding: 40px; text-align: center; margin: 20px 0; border: 1px solid rgba(255,255,255,0.1); }
+        .btn { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .tab-bar { display: flex; justify-content: space-around; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .tab-item { color: var(--text-muted); cursor: pointer; font-size: 14px; }
+        .tab-item.active { color: white; font-weight: bold; }
+        .stat-card { background: rgba(30,41,59,0.5); padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+        h1 { margin-bottom: 10px; color: white; }
     </style>
 </head>
 <body>
 
 <div id="app">
+    <!-- DASHBOARD -->
     <div id="view-dashboard" class="view active">
-        <header style="text-align: center; margin-bottom: 2rem;">
-            <h1>VocabMaster</h1>
-            <p>Prêt pour votre session ?</p>
-        </header>
-        <div class="stats-grid">
-            <div class="stat-card"><div id="stat-due" class="stat-value">0</div><div class="stat-label">À réviser</div></div>
-            <div class="stat-card"><div id="stat-total" class="stat-value">0</div><div class="stat-label">Total mots</div></div>
+        <h1>VocabMaster</h1>
+        <div class="stat-card">Apprentissage en cours...</div>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <div class="stat-card" style="flex:1">À réviser: <span id="stat-due">0</span></div>
+            <div class="stat-card" style="flex:1">Total: <span id="stat-total">0</span></div>
         </div>
-        <button class="start-btn" onclick="startSession()">DÉMARRER LA SESSION</button>
+        <button class="btn" onclick="startSession()">DÉMARRER LA SESSION</button>
     </div>
 
+    <!-- REVIEW -->
     <div id="view-review" class="view">
-        <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 1rem;">
-            <span id="review-progress">1 / 10</span>
-            <span onclick="switchView('dashboard')" style="color: var(--text-muted);">Quitter</span>
+        <div style="display:flex; justify-content:space-between">
+            <span id="review-progress">0/0</span>
+            <span onclick="switchView('dashboard')">Sortir</span>
         </div>
-        <div class="review-container">
-            <div id="flashcard" class="card" onclick="flipCard()">
-                <div class="card-face card-front"><div class="card-text" id="card-front-text">...</div></div>
-                <div class="card-face card-back"><div class="card-text" id="card-back-text">...</div></div>
-            </div>
-            <div id="review-actions" class="review-actions">
-                <button class="score-btn" style="background:#475569" onclick="submitScore(1)">Revoir</button>
-                <button class="score-btn" style="background:#ea580c" onclick="submitScore(3)">Dur <span id="label-hard"></span></button>
-                <button class="score-btn" style="background:#2563eb" onclick="submitScore(4)">Bien <span id="label-good"></span></button>
-                <button class="score-btn" style="background:#16a34a" onclick="submitScore(5)">Facile <span id="label-easy"></span></button>
-            </div>
+        <div class="card" onclick="flipCard()">
+            <div id="card-text" style="font-size: 24px; font-weight: bold;">Chargement...</div>
+            <div id="card-hint" style="color:var(--text-muted); margin-top:10px;">Cliquer pour voir</div>
+        </div>
+        <div id="actions" style="display:none; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button class="btn" style="background:#475569" onclick="submitScore(1)">Revoir</button>
+            <button class="btn" style="background:#ea580c" onclick="submitScore(3)">Dur</button>
+            <button class="btn" style="background:#2563eb" onclick="submitScore(4)">Bien</button>
+            <button class="btn" style="background:#16a34a" onclick="submitScore(5)">Facile</button>
         </div>
     </div>
 
-    <div id="view-add" class="view">
-        <h1>Nouveau Mot</h1>
-        <div class="form-group"><input type="text" id="input-fr" placeholder="Français"></div>
-        <div class="form-group"><input type="text" id="input-en" placeholder="Anglais"></div>
-        <button class="start-btn" onclick="saveWord()">ENREGISTRER</button>
-    </div>
-
+    <!-- LIST -->
     <div id="view-list" class="view">
-        <h1>Bibliothèque</h1>
-        <div id="word-list" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.8rem;"></div>
+        <h1>Ma Bibliothèque</h1>
+        <div id="word-list"></div>
     </div>
 
-    <nav class="tab-bar">
-        <div class="tab-item active" onclick="switchView('dashboard')"><span>🏠</span><span>Accueil</span></div>
-        <div class="tab-item" onclick="switchView('add')"><span>➕</span><span>Ajouter</span></div>
-        <div class="tab-item" onclick="switchView('list')"><span>📚</span><span>Mots</span></div>
-    </nav>
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+        <div class="tab-item active" onclick="switchView('dashboard')">Accueil</div>
+        <div class="tab-item" onclick="switchView('list')">Mots</div>
+    </div>
 </div>
 
 <script>
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
-
-    let db;
-    const initialVocab = [
+    const vocabulary = [
         { en: "Postpone", fr: "Remettre à plus tard / reporter" },
         { en: "Implement", fr: "Appliquer" },
         { en: "else", fr: "Quoi d'autre" },
@@ -199,122 +113,101 @@
         { en: "Prompted", fr: "Provoqué / suscité par" }
     ];
 
-    const request = indexedDB.open("VocabDB", 1);
-    request.onupgradeneeded = (e) => {
-        db = e.target.result;
-        const store = db.createObjectStore("words", { keyPath: "id", autoIncrement: true });
-        store.createIndex("nextReview", "nextReview");
-    };
-    request.onsuccess = (e) => {
-        db = e.target.result;
-        seedDatabase().then(() => updateStats());
-    };
+    let db;
+    let session = [];
+    let currentIndex = 0;
+    let flipped = false;
 
-    async function seedDatabase() {
-        return new Promise(resolve => {
-            const tx = db.transaction("words", "readwrite");
-            const store = tx.objectStore("words");
-            const countReq = store.count();
-            countReq.onsuccess = () => {
-                if (countReq.result === 0) {
-                    let done = 0;
-                    initialVocab.forEach(item => {
-                        store.add({ ...item, repetition:0, interval:0, efactor:2.5, direction:'FR_EN', nextReview:Date.now(), createdAt:Date.now() })
-                        .onsuccess = () => { done++; if(done === initialVocab.length) resolve(); };
-                    });
-                } else resolve();
-            };
-        });
-    }
-
-    let sessionQueue = [];
-    let currentCardIndex = 0;
-    let isFlipped = false;
-
-    function switchView(viewName) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(`view-${viewName}`).classList.add('active');
-        document.querySelectorAll('.tab-item').forEach((t, i) => {
-            t.classList.toggle('active', ['dashboard', 'add', 'list'][i] === viewName);
-        });
-        if(viewName === 'list') renderList();
-        if(viewName === 'dashboard') updateStats();
-    }
-
-    async function updateStats() {
-        if(!db) return;
-        const tx = db.transaction("words", "readonly");
-        const store = tx.objectStore("words");
-        store.count().onsuccess = (e) => document.getElementById('stat-total').innerText = e.target.result;
-        const all = await new Promise(r => { store.getAll().onsuccess = (e) => r(e.target.result); });
-        const due = all.filter(w => w.nextReview <= Date.now() || w.repetition === 0);
-        document.getElementById('stat-due').innerText = due.length;
-    }
-
-    async function saveWord() {
-        const fr = document.getElementById('input-fr').value.trim();
-        const en = document.getElementById('input-en').value.trim();
-        if(!fr || !en) return;
-        const tx = db.transaction("words", "readwrite");
-        tx.objectStore("words").add({ fr, en, repetition:0, interval:0, efactor:2.5, direction:'FR_EN', nextReview:Date.now(), createdAt:Date.now() });
-        tx.oncomplete = () => { document.getElementById('input-fr').value=''; document.getElementById('input-en').value=''; switchView('dashboard'); };
-    }
-
-    async function startSession() {
-        const tx = db.transaction("words", "readonly");
-        const all = await new Promise(r => { tx.objectStore("words").getAll().onsuccess = (e) => r(e.target.result); });
-        const due = all.filter(w => w.nextReview <= Date.now() || w.repetition === 0).sort((a,b) => b.createdAt - a.createdAt);
-        if(due.length === 0) return alert("Rien à réviser !");
-        sessionQueue = due.slice(0, 20);
-        currentCardIndex = 0;
-        showCard();
-        switchView('review');
-    }
-
-    function showCard() {
-        const word = sessionQueue[currentCardIndex];
-        isFlipped = false;
-        document.getElementById('flashcard').classList.remove('flipped');
-        document.getElementById('review-actions').classList.remove('visible');
-        document.getElementById('review-progress').innerText = `${currentCardIndex + 1} / ${sessionQueue.length}`;
-        document.getElementById('card-front-text').innerText = word.direction === 'FR_EN' ? word.fr : word.en;
-        document.getElementById('card-back-text').innerText = word.direction === 'FR_EN' ? word.en : word.fr;
-    }
-
-    function flipCard() {
-        if(isFlipped) return;
-        isFlipped = true;
-        document.getElementById('flashcard').classList.add('flipped');
-        document.getElementById('review-actions').classList.add('visible');
-        const w = sessionQueue[currentCardIndex];
-        document.getElementById('label-hard').innerText = (w.interval || 1) + 'j';
-        document.getElementById('label-good').innerText = Math.max(2, Math.round((w.interval || 1) * 2.5)) + 'j';
-        document.getElementById('label-easy').innerText = Math.max(4, Math.round((w.interval || 1) * 4)) + 'j';
-    }
-
-    async function submitScore(q) {
-        const w = sessionQueue[currentCardIndex];
-        let { repetition:r, interval:i, efactor:f } = w;
-        if (q < 3) { r = 0; i = 1; } 
-        else {
-            if (r === 0) i = 1; else if (r === 1) i = 6; else i = Math.round(i * f);
-            r++;
+    // Database
+    const req = indexedDB.open("VocabDB", 2);
+    req.onupgradeneeded = (e) => {
+        const d = e.target.result;
+        if(!d.objectStoreNames.contains("words")) {
+            d.createObjectStore("words", { keyPath: "id", autoIncrement: true });
         }
-        f = Math.max(1.3, f + (0.1 - (5-q) * (0.08 + (5-q) * 0.02)));
-        const updated = { ...w, repetition:r, interval:i, efactor:f, direction: r%2===0 ? 'EN_FR' : 'FR_EN', nextReview: Date.now() + i*24*60*60*1000 };
-        const tx = db.transaction("words", "readwrite");
-        tx.objectStore("words").put(updated);
-        tx.oncomplete = () => { currentCardIndex++; if(currentCardIndex < sessionQueue.length) showCard(); else switchView('dashboard'); };
-    }
+    };
+    req.onsuccess = (e) => {
+        db = e.target.result;
+        initData();
+    };
 
-    function renderList() {
-        db.transaction("words", "readonly").objectStore("words").getAll().onsuccess = (e) => {
-            const list = document.getElementById('word-list');
-            list.innerHTML = e.target.result.map(w => `<div class="stat-card" style="text-align:left; display:flex; justify-content:space-between"><div><b>${w.fr}</b> → ${w.en}</div><div class="badge">${w.interval}j</div></div>`).join('');
+    function initData() {
+        const tx = db.transaction("words", "readwrite");
+        const store = tx.objectStore("words");
+        store.count().onsuccess = (ev) => {
+            if(ev.target.result === 0) {
+                vocabulary.forEach(v => store.add({...v, repetition:0, interval:0, efactor:2.5, direction:'FR_EN', nextReview:Date.now()}));
+            }
+            updateStats();
         };
     }
 
-    window.onload = () => switchView('dashboard');
+    function switchView(v) {
+        document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+        document.getElementById('view-'+v).classList.add('active');
+        if(v === 'list') renderList();
+        updateStats();
+    }
+
+    function updateStats() {
+        if(!db) return;
+        const store = db.transaction("words").objectStore("words");
+        store.count().onsuccess = (e) => document.getElementById('stat-total').innerText = e.target.result;
+        store.getAll().onsuccess = (e) => {
+            const due = e.target.result.filter(w => w.nextReview <= Date.now());
+            document.getElementById('stat-due').innerText = due.length;
+        };
+    }
+
+    function renderList() {
+        db.transaction("words").objectStore("words").getAll().onsuccess = (e) => {
+            document.getElementById('word-list').innerHTML = e.target.result.map(w => `<div class="stat-card"><b>${w.fr}</b> -> ${w.en}</div>`).join('');
+        };
+    }
+
+    function startSession() {
+        db.transaction("words").objectStore("words").getAll().onsuccess = (e) => {
+            session = e.target.result.filter(w => w.nextReview <= Date.now()).slice(0, 20);
+            if(session.length === 0) return alert("Rien à réviser !");
+            currentIndex = 0;
+            showCard();
+            switchView('review');
+        };
+    }
+
+    function showCard() {
+        flipped = false;
+        const w = session[currentIndex];
+        document.getElementById('card-text').innerText = w.direction === 'FR_EN' ? w.fr : w.en;
+        document.getElementById('card-hint').innerText = "Cliquer pour voir";
+        document.getElementById('actions').style.display = 'none';
+        document.getElementById('review-progress').innerText = (currentIndex+1)+"/"+session.length;
+    }
+
+    function flipCard() {
+        if(flipped) return;
+        flipped = true;
+        const w = session[currentIndex];
+        document.getElementById('card-text').innerText = w.direction === 'FR_EN' ? w.en : w.fr;
+        document.getElementById('card-hint').innerText = "Vérifié !";
+        document.getElementById('actions').style.display = 'grid';
+    }
+
+    function submitScore(q) {
+        const w = session[currentIndex];
+        let {repetition:r, interval:i, efactor:f} = w;
+        if(q < 3) { r=0; i=1; } else {
+            if(r===0) i=1; else if(r===1) i=6; else i=Math.round(i*f);
+            r++;
+        }
+        f = Math.max(1.3, f + (0.1 - (5-q) * (0.08 + (5-q) * 0.02)));
+        const up = {...w, repetition:r, interval:i, efactor:f, nextReview: Date.now() + i*86400000, direction: r%2===0?'EN_FR':'FR_EN'};
+        db.transaction("words", "readwrite").objectStore("words").put(up).onsuccess = () => {
+            currentIndex++;
+            if(currentIndex < session.length) showCard(); else switchView('dashboard');
+        };
+    }
 </script>
+
 </body>
 </html>
