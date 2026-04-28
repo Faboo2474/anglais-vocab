@@ -3,211 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VocabMaster - SRS</title>
+    <title>VocabMaster AI Context</title>
     <style>
-        :root { --primary: #6366f1; --background: #0f172a; --text: #f8fafc; --text-muted: #94a3b8; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: sans-serif; background-color: var(--background); color: var(--text); height: 100vh; overflow: hidden; }
-        #app { height: 100%; display: flex; flex-direction: column; padding: 20px; }
-        .view { display: none; flex: 1; flex-direction: column; }
-        .view.active { display: flex; }
-        .card { background: rgba(30,41,59,0.8); border-radius: 20px; padding: 40px; text-align: center; margin: 20px 0; border: 1px solid rgba(255,255,255,0.1); }
-        .btn { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
-        .tab-bar { display: flex; justify-content: space-around; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); }
-        .tab-item { color: var(--text-muted); cursor: pointer; font-size: 14px; }
-        .tab-item.active { color: white; font-weight: bold; }
-        .stat-card { background: rgba(30,41,59,0.5); padding: 15px; border-radius: 10px; margin-bottom: 10px; }
-        h1 { margin-bottom: 10px; color: white; }
+        :root {
+            --primary: #6366f1; --primary-light: #818cf8; --secondary: #ec4899;
+            --background: #0f172a; --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc; --text-muted: #94a3b8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--background); color: var(--text); height: 100vh; overflow: hidden; }
+        #app { height: 100%; display: flex; flex-direction: column; padding: 20px env(safe-area-inset-right) 20px env(safe-area-inset-left); }
+        
+        .view { display: none; flex: 1; flex-direction: column; overflow-y: auto; padding-top: 20px; }
+        .view.active { display: flex; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        .xp-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+        .xp-progress { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; transition: width 0.5s; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .stat-val { font-size: 20px; font-weight: bold; color: var(--primary-light); }
+
+        .card { background: var(--card-bg); border-radius: 25px; padding: 30px 15px; text-align: center; margin: 15px 0; border: 1px solid rgba(255,255,255,0.1); min-height: 280px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .btn { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 15px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); opacity: 0.8; }
+        .btn-small { padding: 8px; font-size: 12px; width: auto; margin: 0; }
+
+        .tab-bar { display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid rgba(255,255,255,0.1); background: var(--background); }
+        .tab-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; gap: 4px; cursor: pointer; }
+        .tab-item.active { color: var(--primary-light); }
+
+        .word-item { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; color: white; margin-bottom: 15px; font-size: 16px; }
+
+        .cloze-input { background: transparent; border: none; border-bottom: 2px solid var(--primary); width: 100%; text-align: center; font-size: 20px; color: white; outline: none; margin-top: 15px; }
+        .sentence-box { font-size: 18px; line-height: 1.4; font-style: italic; color: #fff; margin: 15px 0; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; }
+        .loading-dots:after { content: '.'; animation: dots 1.5s steps(5, end) infinite; }
+        @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60% { content: '...'; } }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <!-- DASHBOARD -->
     <div id="view-dashboard" class="view active">
-        <h1>VocabMaster</h1>
-        <div class="stat-card">Apprentissage en cours...</div>
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <div class="stat-card" style="flex:1">À réviser: <span id="stat-due">0</span></div>
-            <div class="stat-card" style="flex:1">Total: <span id="stat-total">0</span></div>
+        <div class="header">
+            <h2 id="user-level" style="font-size:1.2rem">Chargement...</h2>
+            <div class="xp-bar"><div id="xp-progress" class="xp-progress"></div></div>
+            <p style="margin-top:5px; font-size:10px;"><span id="user-xp">0</span> / 100 XP</p>
         </div>
-        <button class="btn" onclick="startSession()">DÉMARRER LA SESSION</button>
+        <div class="stats-grid">
+            <div class="stat-card"><div id="stat-streak" class="stat-val">🔥 0</div><div style="font-size:10px">Série</div></div>
+            <div class="stat-card"><div id="stat-due" class="stat-val">0</div><div style="font-size:10px">À réviser</div></div>
+        </div>
+        <button class="btn" style="background: linear-gradient(135deg, #6366f1, #ec4899);" onclick="startSession()">DÉMARRER LA SESSION</button>
     </div>
 
-    <!-- REVIEW -->
     <div id="view-review" class="view">
-        <div style="display:flex; justify-content:space-between">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
             <span id="review-progress">0/0</span>
-            <span onclick="switchView('dashboard')">Sortir</span>
+            <span id="mode-badge" style="background:var(--primary); padding:4px 8px; border-radius:10px; font-size:10px;">EXERCICE</span>
+            <span onclick="switchView('dashboard')">Quitter</span>
         </div>
-        <div class="card" onclick="flipCard()">
-            <div id="card-text" style="font-size: 24px; font-weight: bold;">Chargement...</div>
-            <div id="card-hint" style="color:var(--text-muted); margin-top:10px;">Cliquer pour voir</div>
+        <div class="card">
+            <div id="card-question" style="font-size: 12px; color:var(--text-muted); margin-bottom:10px;">En Anglais ?</div>
+            <div id="card-main-text" style="font-size: 24px; font-weight: bold;">...</div>
+            
+            <div id="ai-context" style="display:none;">
+                <div class="sentence-box" id="sentence-display">IA en train de réfléchir<span class="loading-dots"></span></div>
+            </div>
+
+            <div id="cloze-zone" style="display:none;">
+                <input type="text" id="cloze-input" class="cloze-input" autocomplete="off" spellcheck="false" placeholder="Tapez ici...">
+            </div>
         </div>
-        <div id="actions" style="display:none; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button class="btn" style="background:#475569" onclick="submitScore(1)">Revoir</button>
-            <button class="btn" style="background:#ea580c" onclick="submitScore(3)">Dur</button>
-            <button class="btn" style="background:#2563eb" onclick="submitScore(4)">Bien</button>
-            <button class="btn" style="background:#16a34a" onclick="submitScore(5)">Facile</button>
+
+        <div id="flash-actions">
+            <button class="btn" onclick="revealCard()">VOIR LA TRADUCTION</button>
+        </div>
+
+        <div id="score-actions" style="display:none; grid-template-columns: repeat(4, 1fr); gap: 5px;">
+            <button class="btn btn-small" style="background:#475569" onclick="submitScore(1)">Rev.</button>
+            <button class="btn btn-small" style="background:#ea580c" onclick="submitScore(3)">Dur</button>
+            <button class="btn btn-small" style="background:#2563eb" onclick="submitScore(4)">Bien</button>
+            <button class="btn btn-small" style="background:#16a34a" onclick="submitScore(5)">Faci.</button>
+        </div>
+
+        <div id="cloze-actions" style="display:none;">
+            <button class="btn" onclick="checkCloze()">VÉRIFIER</button>
         </div>
     </div>
 
-    <!-- LIST -->
     <div id="view-list" class="view">
-        <h1>Ma Bibliothèque</h1>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h1>Bibliothèque</h1>
+            <button class="btn btn-small" onclick="showEditForm(null, '', '')">+ AJOUTER</button>
+        </div>
         <div id="word-list"></div>
     </div>
 
-    <!-- TAB BAR -->
-    <div class="tab-bar">
-        <div class="tab-item active" onclick="switchView('dashboard')">Accueil</div>
-        <div class="tab-item" onclick="switchView('list')">Mots</div>
+    <div id="view-edit" class="view">
+        <h1>Éditer</h1>
+        <input type="hidden" id="edit-id">
+        <input type="text" id="edit-fr" placeholder="Français">
+        <input type="text" id="edit-en" placeholder="Anglais">
+        <button class="btn" onclick="saveWord()">ENREGISTRER</button>
+        <button id="del-btn" class="btn" style="background:#ef4444" onclick="deleteWord()">SUPPRIMER</button>
+        <button class="btn" style="background:transparent; border:1px solid rgba(255,255,255,0.1)" onclick="switchView('list')">RETOUR</button>
     </div>
+
+    <nav class="tab-bar">
+        <div class="tab-item active" onclick="switchView('dashboard')"><span>🏠</span><span>Accueil</span></div>
+        <div class="tab-item" onclick="switchView('list')"><span>📚</span><span>Mots</span></div>
+    </nav>
 </div>
 
 <script>
-    const vocabulary = [
-        { en: "Postpone", fr: "Remettre à plus tard / reporter" },
-        { en: "Implement", fr: "Appliquer" },
-        { en: "else", fr: "Quoi d'autre" },
-        { en: "Other ways", fr: "Autre manières / autre chemins" },
-        { en: "Get used to", fr: "S'habituer à" },
-        { en: "Be used to", fr: "Etre habitué à" },
-        { en: "I am getting used to", fr: "Je suis en train de m'habituer à" },
-        { en: "Foot traffic", fr: "Circulation piétonne" },
-        { en: "Defer", fr: "Reporter" },
-        { en: "Diter", fr: "Dire" },
-        { en: "Differ", fr: "Différer" },
-        { en: "Deflect", fr: "Dévier" },
-        { en: "Share price", fr: "Action (d'entreprise)" },
-        { en: "So far", fr: "Jusqu'à présent" },
-        { en: "A survey", fr: "Enquête, sondage" },
-        { en: "Ensure", fr: "S'assurer" },
-        { en: "The board of director", fr: "Le conseil d'administration" },
-        { en: "Currently", fr: "Actuellement (action en cours)" },
-        { en: "Quarter", fr: "Trimestre" },
-        { en: "Upcoming", fr: "À venir" },
-        { en: "By the time", fr: "Au moment de/où" },
-        { en: "Regarding", fr: "Concernant" },
-        { en: "Complaint", fr: "Plainte" },
-        { en: "Roughly", fr: "Grossièrement" },
-        { en: "Strikes", fr: "Grève / force de frappe" },
-        { en: "Wounded", fr: "Blessé" },
-        { en: "Ceasefire", fr: "Cessez-le-feu" },
-        { en: "Take over", fr: "Prendre le contrôle" },
-        { en: "Conveyance", fr: "Transfert (logistique)" },
-        { en: "Convenience", fr: "Pratique / commode" },
-        { en: "Unforeseen", fr: "Imprévu" },
-        { en: "Barring", fr: "Sauf en cas de" },
-        { en: "Assuming", fr: "En supposant" },
-        { en: "Stated", fr: "Déclaré" },
-        { en: "Compliant", fr: "Conforme" },
-        { en: "Revamp", fr: "Rénover" },
-        { en: "Relapse", fr: "Rechute" },
-        { en: "Accrued", fr: "Accumuler / réunir progressivement" },
-        { en: "Adhered", fr: "Respecter" },
-        { en: "Accosted", fr: "Abordé" },
-        { en: "Comply", fr: "Se conformer" },
-        { en: "Curtail", fr: "Limiter / réduire" },
-        { en: "Commitment", fr: "Engagement" },
-        { en: "Prompted", fr: "Provoqué / suscité par" }
-    ];
+    let db, session = [], currentIndex = 0, currentMode = 'flash';
+    let userData = JSON.parse(localStorage.getItem('vocabUser')) || { xp: 0, streak: 0, lastVisit: null };
 
-    let db;
-    let session = [];
-    let currentIndex = 0;
-    let flipped = false;
-
-    // Database
-    const req = indexedDB.open("VocabDB", 2);
+    // DB Init
+    const req = indexedDB.open("VocabMasterAI", 4);
     req.onupgradeneeded = (e) => {
         const d = e.target.result;
-        if(!d.objectStoreNames.contains("words")) {
-            d.createObjectStore("words", { keyPath: "id", autoIncrement: true });
-        }
+        if(!d.objectStoreNames.contains("words")) d.createObjectStore("words", { keyPath: "id", autoIncrement: true });
     };
-    req.onsuccess = (e) => {
-        db = e.target.result;
-        initData();
-    };
-
-    function initData() {
-        const tx = db.transaction("words", "readwrite");
-        const store = tx.objectStore("words");
-        store.count().onsuccess = (ev) => {
-            if(ev.target.result === 0) {
-                vocabulary.forEach(v => store.add({...v, repetition:0, interval:0, efactor:2.5, direction:'FR_EN', nextReview:Date.now()}));
-            }
-            updateStats();
-        };
-    }
+    req.onsuccess = (e) => { db = e.target.result; updateDashboard(); };
 
     function switchView(v) {
         document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
         document.getElementById('view-'+v).classList.add('active');
+        document.querySelectorAll('.tab-item').forEach((it, i) => it.classList.toggle('active', ['dashboard', 'list'][i] === v));
         if(v === 'list') renderList();
-        updateStats();
+        if(v === 'dashboard') updateDashboard();
     }
 
-    function updateStats() {
+    async function updateDashboard() {
         if(!db) return;
-        const store = db.transaction("words").objectStore("words");
-        store.count().onsuccess = (e) => document.getElementById('stat-total').innerText = e.target.result;
-        store.getAll().onsuccess = (e) => {
-            const due = e.target.result.filter(w => w.nextReview <= Date.now());
-            document.getElementById('stat-due').innerText = due.length;
-        };
+        const level = Math.floor(userData.xp / 100) + 1;
+        document.getElementById('user-level').innerText = (level > 3 ? "Ambassadeur" : "Apprenti") + " - Niveau " + level;
+        document.getElementById('xp-progress').style.width = (userData.xp % 100) + "%";
+        document.getElementById('user-xp').innerText = (userData.xp % 100);
+        document.getElementById('stat-streak').innerText = "🔥 " + userData.streak;
+        
+        const all = await new Promise(r => db.transaction("words").objectStore("words").getAll().onsuccess = (e) => r(e.target.result));
+        document.getElementById('stat-due').innerText = all.filter(w => w.nextReview <= Date.now()).length;
     }
 
     function renderList() {
         db.transaction("words").objectStore("words").getAll().onsuccess = (e) => {
-            document.getElementById('word-list').innerHTML = e.target.result.map(w => `<div class="stat-card"><b>${w.fr}</b> -> ${w.en}</div>`).join('');
+            document.getElementById('word-list').innerHTML = e.target.result.map(w => `
+                <div class="word-item" onclick="showEditForm(${w.id}, '${w.fr.replace(/'/g,"\\'")}', '${w.en.replace(/'/g,"\\'")}')">
+                    <b>${w.fr}</b> <span>${w.en}</span>
+                </div>`).join('');
         };
     }
 
-    function startSession() {
-        db.transaction("words").objectStore("words").getAll().onsuccess = (e) => {
-            session = e.target.result.filter(w => w.nextReview <= Date.now()).slice(0, 20);
-            if(session.length === 0) return alert("Rien à réviser !");
-            currentIndex = 0;
-            showCard();
-            switchView('review');
-        };
+    function showEditForm(id, fr, en) {
+        document.getElementById('edit-id').value = id || '';
+        document.getElementById('edit-fr').value = fr;
+        document.getElementById('edit-en').value = en;
+        document.getElementById('del-btn').style.display = id ? 'block' : 'none';
+        switchView('edit');
     }
 
-    function showCard() {
-        flipped = false;
+    function saveWord() {
+        const id = document.getElementById('edit-id').value;
+        const fr = document.getElementById('edit-fr').value.trim(), en = document.getElementById('edit-en').value.trim();
+        if(!fr || !en) return;
+        const tx = db.transaction("words", "readwrite");
+        const store = tx.objectStore("words");
+        const data = { fr, en, repetition: 0, interval: 0, efactor: 2.5, direction: 'FR_EN', nextReview: Date.now() };
+        if(id) {
+            store.get(Number(id)).onsuccess = (e) => store.put({...e.target.result, fr, en});
+        } else store.add(data);
+        tx.oncomplete = () => switchView('list');
+    }
+
+    function deleteWord() {
+        const id = document.getElementById('edit-id').value;
+        if(confirm("Supprimer ?")) db.transaction("words", "readwrite").objectStore("words").delete(Number(id)).onsuccess = () => switchView('list');
+    }
+
+    async function startSession() {
+        const words = await new Promise(r => db.transaction("words").objectStore("words").getAll().onsuccess = (e) => r(e.target.result));
+        session = words.filter(w => w.nextReview <= Date.now()).slice(0, 15);
+        if(session.length === 0) return alert("Rien à réviser !");
+        currentIndex = 0;
+        showCard();
+        switchView('review');
+    }
+
+    async function fetchExample(word) {
+        document.getElementById('sentence-display').innerHTML = 'IA en train de réfléchir<span class="loading-dots"></span>';
+        try {
+            const resp = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word.toLowerCase()}`);
+            const data = await resp.json();
+            const meanings = data[0]?.meanings || [];
+            for (let m of meanings) {
+                for (let d of m.definitions) {
+                    if (d.example) {
+                        // Mask the word (case insensitive, partial matches handled)
+                        const regex = new RegExp(word, 'gi');
+                        return d.example.replace(regex, "__________");
+                    }
+                }
+            }
+        } catch (e) { console.error(e); }
+        return null; // Fallback
+    }
+
+    async function showCard() {
         const w = session[currentIndex];
-        document.getElementById('card-text').innerText = w.direction === 'FR_EN' ? w.fr : w.en;
-        document.getElementById('card-hint').innerText = "Cliquer pour voir";
-        document.getElementById('actions').style.display = 'none';
+        currentMode = (w.interval >= 1 && Math.random() > 0.4) ? 'cloze' : 'flash';
         document.getElementById('review-progress').innerText = (currentIndex+1)+"/"+session.length;
+        document.getElementById('mode-badge').innerText = currentMode === 'cloze' ? 'AI CONTEXT' : 'FLASHCARD';
+        document.getElementById('card-main-text').innerText = w.direction === 'FR_EN' ? w.fr : w.en;
+        document.getElementById('ai-context').style.display = 'none';
+        document.getElementById('cloze-zone').style.display = 'none';
+        document.getElementById('flash-actions').style.display = 'block';
+        document.getElementById('score-actions').style.display = 'none';
+        document.getElementById('cloze-actions').style.display = 'none';
+
+        if(currentMode === 'cloze') {
+            document.getElementById('ai-context').style.display = 'block';
+            document.getElementById('flash-actions').style.display = 'none';
+            document.getElementById('cloze-actions').style.display = 'block';
+            document.getElementById('cloze-zone').style.display = 'block';
+            
+            const targetWord = w.direction === 'FR_EN' ? w.en : w.fr;
+            const example = await fetchExample(targetWord);
+            if(example) {
+                document.getElementById('sentence-display').innerText = example;
+            } else {
+                document.getElementById('sentence-display').innerText = `Problème de connexion IA. Trouvez la traduction de : ${w.fr}`;
+            }
+            document.getElementById('cloze-input').value = "";
+            document.getElementById('cloze-input').focus();
+        }
     }
 
-    function flipCard() {
-        if(flipped) return;
-        flipped = true;
+    function revealCard() {
         const w = session[currentIndex];
-        document.getElementById('card-text').innerText = w.direction === 'FR_EN' ? w.en : w.fr;
-        document.getElementById('card-hint').innerText = "Vérifié !";
-        document.getElementById('actions').style.display = 'grid';
+        document.getElementById('card-main-text').innerText = w.direction === 'FR_EN' ? w.en : w.fr;
+        document.getElementById('flash-actions').style.display = 'none';
+        document.getElementById('score-actions').style.display = 'grid';
+    }
+
+    function checkCloze() {
+        const w = session[currentIndex];
+        const ans = (w.direction === 'FR_EN' ? w.en : w.fr).toLowerCase().trim();
+        const input = document.getElementById('cloze-input').value.toLowerCase().trim();
+        if(input === ans) {
+            alert("Excellent ! +15 XP");
+            userData.xp += 15;
+            submitScore(5);
+        } else {
+            alert("Dommage ! La réponse était : " + ans);
+            submitScore(1);
+        }
     }
 
     function submitScore(q) {
         const w = session[currentIndex];
         let {repetition:r, interval:i, efactor:f} = w;
-        if(q < 3) { r=0; i=1; } else {
+        if(q<3) { r=0; i=1; } else {
             if(r===0) i=1; else if(r===1) i=6; else i=Math.round(i*f);
-            r++;
+            r++; userData.xp += 5;
         }
-        f = Math.max(1.3, f + (0.1 - (5-q) * (0.08 + (5-q) * 0.02)));
-        const up = {...w, repetition:r, interval:i, efactor:f, nextReview: Date.now() + i*86400000, direction: r%2===0?'EN_FR':'FR_EN'};
-        db.transaction("words", "readwrite").objectStore("words").put(up).onsuccess = () => {
+        f = Math.max(1.3, f+(0.1-(5-q)*(0.08+(5-q)*0.02)));
+        const up = { ...w, repetition:r, interval:i, efactor:f, direction: r%2===0?'EN_FR':'FR_EN', nextReview: Date.now() + i*86400000 };
+        db.transaction("words", "readwrite").objectStore("words").put(up).oncomplete = () => {
+            localStorage.setItem('vocabUser', JSON.stringify(userData));
             currentIndex++;
-            if(currentIndex < session.length) showCard(); else switchView('dashboard');
+            if(currentIndex < session.length) showCard(); else { alert("Session finie ! Bravo."); switchView('dashboard'); }
         };
     }
 </script>
-
 </body>
 </html>
