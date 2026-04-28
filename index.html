@@ -424,31 +424,52 @@
 
     request.onsuccess = (e) => {
         db = e.target.result;
-        seedDatabase();
-        updateStats();
+        seedDatabase().then(() => {
+            updateStats();
+        });
+    };
+
+    request.onerror = (e) => {
+        console.error("IDB Error:", e);
+        switchView('dashboard'); // Show UI even if DB fails
     };
 
     async function seedDatabase() {
-        const tx = db.transaction("words", "readwrite");
-        const store = tx.objectStore("words");
-        const countReq = store.count();
-        
-        countReq.onsuccess = () => {
-            if (countReq.result === 0) {
-                initialVocab.forEach(item => {
-                    store.add({
-                        ...item,
-                        repetition: 0,
-                        interval: 0,
-                        efactor: 2.5,
-                        direction: 'FR_EN',
-                        nextReview: Date.now(),
-                        createdAt: Date.now()
+        return new Promise(resolve => {
+            const tx = db.transaction("words", "readwrite");
+            const store = tx.objectStore("words");
+            const countReq = store.count();
+            
+            countReq.onsuccess = () => {
+                if (countReq.result === 0) {
+                    let added = 0;
+                    initialVocab.forEach(item => {
+                        const addReq = store.add({
+                            ...item,
+                            repetition: 0,
+                            interval: 0,
+                            efactor: 2.5,
+                            direction: 'FR_EN',
+                            nextReview: Date.now(),
+                            createdAt: Date.now()
+                        });
+                        addReq.onsuccess = () => {
+                            added++;
+                            if(added === initialVocab.length) resolve();
+                        };
                     });
-                });
-            }
-        };
+                } else {
+                    resolve();
+                }
+            };
+            countReq.onerror = () => resolve();
+        });
     }
+
+    // Initialize UI immediately
+    window.addEventListener('DOMContentLoaded', () => {
+        switchView('dashboard');
+    });
 
     // --- APP STATE ---
     let sessionQueue = [];
