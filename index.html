@@ -418,6 +418,7 @@
         let userData = JSON.parse(localStorage.getItem('vocabUser')) || { xp: 0, streak: 0, lastVisit: null };
         let hintUsed = false;
 
+        const initialVocab = [
             { en: "Postpone", fr: "Remettre à plus tard / reporter" },
             { en: "Implement", fr: "Appliquer" },
             { en: "else", fr: "Quoi d'autre" },
