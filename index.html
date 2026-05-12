@@ -35,7 +35,7 @@
         body {
             font-family: 'Outfit', -apple-system, sans-serif;
             background-color: var(--background);
-            background-image: 
+            background-image:
                 radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.1) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(244, 114, 182, 0.1) 0%, transparent 40%);
             color: var(--text);
@@ -65,19 +65,41 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(0.98); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(0.98);
+            }
         }
 
         @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(124, 58, 237, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(124, 58, 237, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+            }
         }
 
         .header {
@@ -146,7 +168,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
             transition: 0.5s;
         }
 
@@ -244,80 +266,41 @@
             background: rgba(0, 0, 0, 0.4);
             border-radius: 15px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        /* REBUS STYLES */
-        .rebus-letters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin: 20px 0;
+        /* STUDY VIEW STYLES */
+        .study-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 10px;
         }
 
-        .letter-tile {
-            width: 45px;
-            height: 45px;
+        .study-card {
             background: var(--card-bg);
-            border: 2px solid var(--primary);
-            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 20px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
+            flex-direction: column;
+            gap: 8px;
+            transition: transform 0.2s;
+        }
+
+        .study-card:active {
+            transform: scale(0.98);
+        }
+
+        .study-en {
             font-size: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 0 var(--primary);
-        }
-
-        .letter-tile:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 var(--primary);
-        }
-
-        .letter-tile.used {
-            opacity: 0.3;
-            pointer-events: none;
-            transform: scale(0.9);
-        }
-
-        .rebus-answer {
-            min-height: 60px;
-            border-bottom: 3px solid var(--accent);
-            margin-bottom: 20px;
-            display: flex;
-            gap: 5px;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
             font-weight: 900;
-            letter-spacing: 2px;
             color: var(--accent);
-        }
-        
-        .hint-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--text-muted);
-            padding: 8px 15px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-top: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
         }
 
-        .hint-text {
-            font-size: 13px;
-            color: var(--accent);
-            margin-top: 10px;
-            font-style: italic;
-            animation: fadeIn 0.3s;
+        .study-fr {
+            font-size: 16px;
+            color: var(--text-muted);
+            font-weight: 500;
         }
     </style>
 </head>
@@ -328,12 +311,16 @@
         <!-- DASHBOARD -->
         <div id="view-dashboard" class="view active">
             <div class="header">
-                <img src="logo.png" style="width: 120px; height: 120px; margin-bottom: 10px; animation: fadeIn 1s ease-out; filter: drop-shadow(0 0 15px rgba(124, 58, 237, 0.5));">
-                <h2 id="user-level" style="font-size:1.4rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Niveau 1</h2>
+                <img src="logo.png"
+                    style="width: 120px; height: 120px; margin-bottom: 10px; animation: fadeIn 1s ease-out; filter: drop-shadow(0 0 15px rgba(124, 58, 237, 0.5));">
+                <h2 id="user-level"
+                    style="font-size:1.4rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Niveau 1
+                </h2>
                 <div class="xp-bar">
                     <div id="xp-progress" class="xp-progress"></div>
                 </div>
-                <p style="margin-top:10px; font-size:12px; font-weight: 700; color: var(--text-muted);"><span id="user-xp">0</span> / 100 XP</p>
+                <p style="margin-top:10px; font-size:12px; font-weight: 700; color: var(--text-muted);"><span
+                        id="user-xp">0</span> / 100 XP</p>
             </div>
             <div class="stats-grid">
                 <div class="stat-card">
@@ -360,21 +347,17 @@
                     style="color:var(--text-muted); cursor: pointer; padding: 5px;">Quitter</span>
             </div>
             <div class="card" id="main-card">
-                <div id="card-question" style="font-size: 12px; font-weight: 700; text-transform: uppercase; color:var(--accent); margin-bottom:15px; letter-spacing: 1px;">...</div>
+                <div id="card-question"
+                    style="font-size: 12px; font-weight: 700; text-transform: uppercase; color:var(--accent); margin-bottom:15px; letter-spacing: 1px;">
+                    ...</div>
                 <div id="card-main-text" style="font-size: 32px; font-weight: 900; color: #fff;">...</div>
-                
-                <!-- REBUS ZONE -->
-                <div id="rebus-zone" style="display:none; margin-top:20px;">
-                    <div id="rebus-answer" class="rebus-answer"></div>
-                    <div id="rebus-letters" class="rebus-letters"></div>
-                </div>
 
                 <!-- HINT ZONE -->
                 <div id="hint-zone" style="margin-top: 15px;">
-                    <button class="hint-btn" id="btn-hint" onclick="getAIHint()">
+                    <button class="hint-btn" id="btn-hint" onclick="getAIHint()" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: var(--text-muted); padding: 8px 15px; border-radius: 12px; font-size: 12px; margin-top: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
                         <span>💡</span> INDICE IA
                     </button>
-                    <div id="hint-display" class="hint-text" style="display:none;"></div>
+                    <div id="hint-display" style="font-size: 13px; color: var(--accent); margin-top: 10px; font-style: italic; display:none; animation: fadeIn 0.3s;"></div>
                 </div>
             </div>
             <div id="flash-actions"><button class="btn" onclick="revealCard()">RÉPONSE</button></div>
@@ -384,6 +367,12 @@
                 <button class="btn" style="background:#2563eb" onclick="submitScore(4)">Bien</button>
                 <button class="btn" style="background:#16a34a" onclick="submitScore(5)">Facile</button>
             </div>
+        </div>
+
+        <!-- STUDY (REVISION) -->
+        <div id="view-study" class="view">
+            <h1 style="font-size:1.5rem; margin-bottom:15px;">Révision</h1>
+            <div id="study-list" class="study-grid"></div>
         </div>
 
         <!-- LIST -->
@@ -415,8 +404,11 @@
             <div class="tab-item active" id="tab-dashboard" onclick="switchView('dashboard')">
                 <span class="tab-icon">🏠</span><span>Accueil</span>
             </div>
+            <div class="tab-item" id="tab-study" onclick="switchView('study')">
+                <span class="tab-icon">📖</span><span>Révision</span>
+            </div>
             <div class="tab-item" id="tab-list" onclick="switchView('list')">
-                <span class="tab-icon">📚</span><span>Mots</span>
+                <span class="tab-icon">⚙️</span><span>Gérer</span>
             </div>
         </nav>
     </div>
@@ -425,9 +417,7 @@
         let db, session = [], currentIndex = 0;
         let userData = JSON.parse(localStorage.getItem('vocabUser')) || { xp: 0, streak: 0, lastVisit: null };
         let hintUsed = false;
-        let rebusState = { currentAnswer: [], targetWord: "" };
 
-        const initialVocab = [
             { en: "Postpone", fr: "Remettre à plus tard / reporter" },
             { en: "Implement", fr: "Appliquer" },
             { en: "else", fr: "Quoi d'autre" },
@@ -437,7 +427,6 @@
             { en: "I am getting used to", fr: "Je suis en train de m'habituer à" },
             { en: "Foot traffic", fr: "Circulation piétonne" },
             { en: "Defer", fr: "Reporter" },
-            { en: "Diter", fr: "Dire" },
             { en: "Differ", fr: "Différer" },
             { en: "Deflect", fr: "Dévier" },
             { en: "Share price", fr: "Action (d'entreprise)" },
@@ -471,7 +460,77 @@
             { en: "Comply", fr: "Se conformer" },
             { en: "Curtail", fr: "Limiter / réduire" },
             { en: "Commitment", fr: "Engagement" },
-            { en: "Prompted", fr: "Provoqué / suscité par" }
+            { en: "Prompted", fr: "Provoqué / suscité par" },
+            { en: "To keep track of", fr: "Suivre l'évolution de (un dossier, un budget)" },
+            { en: "To fill someone in", fr: "Mettre quelqu'un au courant" },
+            { en: "To stay on top of things", fr: "Rester à jour / maîtriser la situation" },
+            { en: "To meet a deadline", fr: "Respecter un délai" },
+            { en: "To fall behind", fr: "Prendre du retard" },
+            { en: "To carry out", fr: "Effectuer / réaliser (une étude, une tâche)" },
+            { en: "To look into", fr: "Examiner / enquêter sur un problème" },
+            { en: "To put off", fr: "Reporter / décaler (une réunion)" },
+            { en: "To call off", fr: "Annuler" },
+            { en: "To step down", fr: "Démissionner / quitter ses fonctions" },
+            { en: "To take over", fr: "Reprendre (une entreprise, un poste)" },
+            { en: "A ballpark figure", fr: "Une estimation approximative" },
+            { en: "The bottom line", fr: "Le point essentiel / le bénéfice net" },
+            { en: "To weigh the pros and cons", fr: "Peser le pour et le contre" },
+            { en: "As a matter of fact", fr: "En réalité / d'ailleurs" },
+            { en: "In light of", fr: "Compte tenu de / au vu de" },
+            { en: "On behalf of", fr: "Au nom de (quelqu'un d'autre)" },
+            { en: "By and large", fr: "Dans l'ensemble / globalement" },
+            { en: "For the time being", fr: "Pour le moment" },
+            { en: "To a certain extent", fr: "Dans une certaine mesure" },
+            { en: "In the meantime", fr: "En attendant" },
+            { en: "Regardless of", fr: "Peu importe / quel que soit" },
+            { en: "In short", fr: "En résumé" },
+            { en: "Actually", fr: "En fait (attention, ne veut pas dire 'actuellement')" },
+            { en: "I can’t make it", fr: "Je ne pourrai pas venir / être présent" },
+            { en: "To be short of", fr: "Manquer de (temps, argent)" },
+            { en: "To run out of", fr: "Ne plus avoir de (stock, batterie)" },
+            { en: "To bear in mind", fr: "Garder à l'esprit" },
+            { en: "To get to the point", fr: "En venir au fait" },
+            { en: "To hold the line", fr: "Rester en ligne (au téléphone)" },
+            { en: "To get back to someone", fr: "Recontacter quelqu'un" },
+            { en: "To make sense", fr: "Être logique / avoir du sens" },
+            { en: "To be worth it", fr: "En valoir la peine" },
+            { en: "To make a point of", fr: "Se faire un devoir de / tenir à" },
+            { en: "To sort out", fr: "Régler / résoudre (un problème)" },
+            { en: "To deal with", fr: "S'occuper de / gérer" },
+            { en: "To cope with", fr: "Faire face à / s'adapter à" },
+            { en: "To look forward to (+ ing)", fr: "Se réjouir de / attendre avec impatience" },
+            { en: "To come up with", fr: "Trouver / imaginer (une idée, une solution)" },
+            { en: "To run into someone", fr: "Croiser quelqu'un par hasard" },
+            { en: "To point out", fr: "Signaler / attirer l'attention sur" },
+            { en: "To set up", fr: "Installer / organiser / fonder" },
+            { en: "To read between the lines", fr: "Lire entre les lignes" },
+            { en: "To cut to the chase", fr: "Aller droit au but" },
+            { en: "To keep a straight face", fr: "Garder son sérieux" },
+            { en: "To get the message across", fr: "Faire passer le message" },
+            { en: "To take into account", fr: "Prendre en compte" },
+            { en: "Better safe than sorry", fr: "Deux précautions valent mieux qu'une" },
+            { en: "To be on the same page", fr: "Être sur la même longueur d'onde" },
+            { en: "To make up one's mind", fr: "Se décider" },
+            { en: "However", fr: "Cependant (Le plus fréquent pour l'opposition)" },
+            { en: "Therefore", fr: "Par conséquent (Indique un résultat)" },
+            { en: "Moreover / Furthermore", fr: "De plus / En outre" },
+            { en: "Despite / In spite of", fr: "Malgré (Attention : suivi d'un nom ou -ING)" },
+            { en: "Although / Even though", fr: "Bien que (Suivi d'un sujet + verbe)" },
+            { en: "Unless", fr: "À moins que" },
+            { en: "Provided that", fr: "À condition que" },
+            { en: "Instead of", fr: "Au lieu de" },
+            { en: "Otherwise", fr: "Sinon / faute de quoi" },
+            { en: "In order to", fr: "Afin de / pour" },
+            { en: "As long as", fr: "Tant que / du moment que" },
+            { en: "Whereas", fr: "Tandis que (Pour contraster deux idées)" },
+            { en: "Due to / Owing to", fr: "En raison de / à cause de" },
+            { en: "Consequently", fr: "Par conséquent" },
+            { en: "In addition to", fr: "En plus de" },
+            { en: "Nevertheless", fr: "Néanmoins" },
+            { en: "Regarding / Concerning", fr: "Concernant / à propos de" },
+            { en: "On behalf of", fr: "Au nom de / de la part de" },
+            { en: "Such as", fr: "Tel que / comme" },
+            { en: "Yet", fr: "Pourtant / cependant" }
         ];
 
         const req = indexedDB.open("VocabMasterUltimate", 1); // Nouveau nom pour forcer reset
@@ -483,10 +542,15 @@
 
         function seed() {
             const store = db.transaction("words", "readwrite").objectStore("words");
-            store.count().onsuccess = (ev) => {
-                if (ev.target.result === 0) {
-                    initialVocab.forEach(v => store.add({ ...v, repetition: 0, interval: 0, efactor: 2.5, direction: 'FR_EN', nextReview: Date.now() }));
-                }
+            store.getAll().onsuccess = (ev) => {
+                const existing = ev.target.result;
+                const existingEn = new Set(existing.map(w => w.en.toLowerCase()));
+                
+                initialVocab.forEach(v => {
+                    if (!existingEn.has(v.en.toLowerCase())) {
+                        store.add({ ...v, repetition: 0, interval: 0, efactor: 2.5, direction: 'FR_EN', nextReview: Date.now() });
+                    }
+                });
                 updateDashboard();
             };
         }
@@ -495,7 +559,6 @@
             document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
             document.getElementById('view-' + v).classList.add('active');
 
-            // Cacher la barre de navigation pendant la révision
             const tabBar = document.querySelector('.tab-bar');
             if (v === 'review') {
                 tabBar.style.display = 'none';
@@ -505,19 +568,39 @@
 
             document.querySelectorAll('.tab-item').forEach(it => it.classList.remove('active'));
             if (document.getElementById('tab-' + v)) document.getElementById('tab-' + v).classList.add('active');
+            
             if (v === 'list') renderList();
+            if (v === 'study') renderStudyList();
             if (v === 'dashboard') updateDashboard();
         }
 
         async function updateDashboard() {
             if (!db) return;
             const level = Math.floor(userData.xp / 100) + 1;
-            document.getElementById('user-level').innerText = "Expert - Niveau " + level;
+            
+            let rank = "Novice";
+            if (level > 40) rank = "Légende";
+            else if (level > 30) rank = "Maître";
+            else if (level > 20) rank = "Expert";
+            else if (level > 10) rank = "Initié";
+            else if (level > 5) rank = "Apprenti";
+
+            document.getElementById('user-level').innerText = rank + " - Niveau " + level;
             document.getElementById('xp-progress').style.width = (userData.xp % 100) + "%";
             document.getElementById('user-xp').innerText = (userData.xp % 100);
             document.getElementById('stat-streak').innerText = "🔥 " + userData.streak;
             const all = await new Promise(r => db.transaction("words").objectStore("words").getAll().onsuccess = (e) => r(e.target.result));
             document.getElementById('stat-due').innerText = all.filter(w => w.nextReview <= Date.now()).length;
+        }
+
+        function renderStudyList() {
+            db.transaction("words").objectStore("words").getAll().onsuccess = (e) => {
+                document.getElementById('study-list').innerHTML = e.target.result.map(w => `
+                <div class="study-card">
+                    <div class="study-en">${w.en}</div>
+                    <div class="study-fr">${w.fr}</div>
+                </div>`).join('');
+            };
         }
 
         function renderList() {
@@ -552,19 +635,12 @@
 
         async function startSession() {
             const words = await new Promise(r => db.transaction("words").objectStore("words").getAll().onsuccess = (e) => r(e.target.result));
-            
-            // On prend les mots à réviser en priorité
             let due = words.filter(w => w.nextReview <= Date.now()).sort(() => Math.random() - 0.5);
-            
-            // Si pas assez de mots dus, on prend des nouveaux ou aléatoires
             if (due.length < 20) {
                 const other = words.filter(w => w.nextReview > Date.now()).sort(() => Math.random() - 0.5);
                 due = [...due, ...other];
             }
-
             if (due.length === 0) return alert("Ajoutez des mots d'abord !");
-
-            // Session de 20 mots : 10 flashcards, 10 rebus
             session = due.slice(0, 20);
             currentIndex = 0;
             showCard();
@@ -574,69 +650,18 @@
         async function showCard() {
             const w = session[currentIndex];
             hintUsed = false;
-            
-            // Mode : 0-9 Flashcards, 10-19 Rebus
-            let mode = (currentIndex < 10) ? 'flash' : 'rebus';
 
             document.getElementById('review-progress').innerText = (currentIndex + 1) + "/" + session.length;
-            document.getElementById('mode-badge').innerText = mode === 'rebus' ? '🧩 MODE REBUS' : '🧠 MÉMORISATION';
-            document.getElementById('mode-badge').style.background = mode === 'rebus' ? 'var(--secondary)' : 'var(--primary)';
+            document.getElementById('mode-badge').innerText = '🧠 MÉMORISATION';
+            document.getElementById('mode-badge').style.background = 'var(--primary)';
 
             document.getElementById('card-question').innerText = w.direction === 'FR_EN' ? "Traduction Anglaise ?" : "Traduction Française ?";
             document.getElementById('card-main-text').innerText = w.direction === 'FR_EN' ? w.fr : w.en;
 
-            // Reset UI
-            document.getElementById('rebus-zone').style.display = mode === 'rebus' ? 'block' : 'none';
-            document.getElementById('card-main-text').style.display = mode === 'rebus' ? 'none' : 'block';
-            document.getElementById('flash-actions').style.display = mode === 'flash' ? 'block' : 'none';
+            document.getElementById('flash-actions').style.display = 'block';
             document.getElementById('score-actions').style.display = 'none';
             document.getElementById('hint-display').style.display = 'none';
             document.getElementById('btn-hint').style.display = 'flex';
-
-            if (mode === 'rebus') {
-                setupRebus(w);
-                getAIHint(true); // Indice d'office pour le rebus
-            }
-        }
-
-        function setupRebus(w) {
-            const target = (w.direction === 'FR_EN' ? w.en : w.fr).toUpperCase();
-            rebusState.targetWord = target;
-            rebusState.currentAnswer = [];
-            
-            const letters = target.split('').sort(() => Math.random() - 0.5);
-            const container = document.getElementById('rebus-letters');
-            const answerContainer = document.getElementById('rebus-answer');
-            
-            container.innerHTML = '';
-            answerContainer.innerHTML = '_ '.repeat(target.length);
-            
-            letters.forEach((l, idx) => {
-                const tile = document.createElement('div');
-                tile.className = 'letter-tile';
-                tile.innerText = l;
-                tile.onclick = () => selectLetter(l, tile);
-                container.appendChild(tile);
-            });
-        }
-
-        function selectLetter(l, tile) {
-            tile.classList.add('used');
-            rebusState.currentAnswer.push(l);
-            
-            const target = rebusState.targetWord;
-            const display = rebusState.currentAnswer.join('') + '_ '.repeat(target.length - rebusState.currentAnswer.length);
-            document.getElementById('rebus-answer').innerText = display;
-
-            if (rebusState.currentAnswer.length === target.length) {
-                if (rebusState.currentAnswer.join('') === target) {
-                    userData.xp += 15;
-                    setTimeout(() => submitScore(5), 500);
-                } else {
-                    alert("Raté ! On recommence le rebus.");
-                    setupRebus(session[currentIndex]);
-                }
-            }
         }
 
         async function getAIHint(isAuto = false) {
@@ -644,7 +669,7 @@
             const w = session[currentIndex];
             const target = w.direction === 'FR_EN' ? w.en : w.fr;
             const display = document.getElementById('hint-display');
-            
+
             display.innerText = "Récupération de l'indice...";
             display.style.display = 'block';
             if (!isAuto) document.getElementById('btn-hint').style.display = 'none';
@@ -655,7 +680,7 @@
                 const hint = data[0]?.meanings[0]?.definitions[0]?.definition || "Pas d'indice disponible.";
                 display.innerText = "Indice : " + hint;
             } catch (e) {
-                display.innerText = "Indice : Commence par '" + target[0] + "' et finit par '" + target[target.length-1] + "'";
+                display.innerText = "Indice : Commence par '" + target[0] + "' et finit par '" + target[target.length - 1] + "'";
             }
         }
 
@@ -683,8 +708,7 @@
             if (q === 4) userData.xp += 5;
             if (q === 5) userData.xp += 10;
 
-            // Si un indice a été utilisé, on force le score à 1 (Revoir)
-            if (hintUsed && currentIndex < 10) {
+            if (hintUsed) {
                 q = 1;
                 console.log("Pénalité indice appliquée");
             }
