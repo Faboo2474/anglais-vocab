@@ -415,7 +415,21 @@
 
     <script>
         let db, session = [], currentIndex = 0;
-        let userData = JSON.parse(localStorage.getItem('vocabUser')) || { xp: 0, streak: 0, lastVisit: null };
+        let userData = { xp: 0, streak: 0, lastVisit: null };
+
+        // Chargement sécurisé des données utilisateur
+        try {
+            const saved = localStorage.getItem('vocabUser');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed && typeof parsed.xp === 'number') {
+                    userData = parsed;
+                }
+            }
+        } catch (e) {
+            console.error("Erreur lecture localStorage:", e);
+        }
+
         let hintUsed = false;
 
         const initialVocab = [
@@ -486,7 +500,7 @@
             { en: "Regardless of", fr: "Peu importe / quel que soit" },
             { en: "In short", fr: "En résumé" },
             { en: "Actually", fr: "En fait (attention, ne veut pas dire 'actuellement')" },
-            { en: "I can’t make it", fr: "Je ne pourrai pas venir / être présent" },
+            { en: "I can't make it", fr: "Je ne pourrai pas venir / être présent" },
             { en: "To be short of", fr: "Manquer de (temps, argent)" },
             { en: "To run out of", fr: "Ne plus avoir de (stock, batterie)" },
             { en: "To bear in mind", fr: "Garder à l'esprit" },
@@ -534,69 +548,109 @@
             { en: "Yet", fr: "Pourtant / cependant" }
         ];
 
-        const req = indexedDB.open("VocabMasterUltimate", 1); // Nouveau nom pour forcer reset
+        const req = indexedDB.open("VocabMasterUltimate", 1);
         req.onupgradeneeded = (e) => {
             const d = e.target.result;
-            d.createObjectStore("words", { keyPath: "id", autoIncrement: true });
+            if (!d.objectStoreNames.contains("words")) {
+                d.createObjectStore("words", { keyPath: "id", autoIncrement: true });
+            }
         };
-        req.onsuccess = (e) => { db = e.target.result; seed(); };
+        req.onsuccess = (e) => { 
+            db = e.target.result; 
+            seed(); 
+        };
+        req.onerror = (e) => console.error("IndexedDB error:", e);
 
         function seed() {
-            const store = db.transaction("words", "readwrite").objectStore("words");
+            if (!db) return;
+            const tx = db.transaction("words", "readwrite");
+            const store = tx.objectStore("words");
             store.getAll().onsuccess = (ev) => {
                 const existing = ev.target.result;
                 const existingEn = new Set(existing.map(w => w.en.toLowerCase()));
                 
                 initialVocab.forEach(v => {
                     if (!existingEn.has(v.en.toLowerCase())) {
-                        store.add({ ...v, repetition: 0, interval: 0, efactor: 2.5, direction: 'FR_EN', nextReview: Date.now() });
+                        store.add({ 
+                            ...v, 
+                            repetition: 0, 
+                            interval: 0, 
+                            efactor: 2.5, 
+                            direction: 'FR_EN', 
+                            nextReview: Date.now() 
+                        });
                     }
                 });
-                updateDashboard();
             };
+            tx.oncomplete = () => updateDashboard();
         }
 
         function switchView(v) {
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-' + v).classList.add('active');
+            try {
+                document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+                const targetView = document.getElementById('view-' + v);
+                if (targetView) targetView.classList.add('active');
 
-            const tabBar = document.querySelector('.tab-bar');
-            if (v === 'review') {
-                tabBar.style.display = 'none';
-            } else {
-                tabBar.style.display = 'flex';
+                const tabBar = document.querySelector('.tab-bar');
+                if (tabBar) {
+                    tabBar.style.display = (v === 'review') ? 'none' : 'flex';
+                }
+
+                document.querySelectorAll('.tab-item').forEach(it => it.classList.remove('active'));
+                const tab = document.getElementById('tab-' + v);
+                if (tab) tab.classList.add('active');
+                
+                if (v === 'list') renderList();
+                if (v === 'study') renderStudyList();
+                if (v === 'dashboard') updateDashboard();
+            } catch (e) {
+                console.error("switchView error:", e);
             }
-
-            document.querySelectorAll('.tab-item').forEach(it => it.classList.remove('active'));
-            if (document.getElementById('tab-' + v)) document.getElementById('tab-' + v).classList.add('active');
-            
-            if (v === 'list') renderList();
-            if (v === 'study') renderStudyList();
-            if (v === 'dashboard') updateDashboard();
         }
 
         async function updateDashboard() {
             if (!db) return;
-            const level = Math.floor(userData.xp / 100) + 1;
-            
-            let rank = "Novice";
-            if (level > 40) rank = "Légende";
-            else if (level > 30) rank = "Maître";
-            else if (level > 20) rank = "Expert";
-            else if (level > 10) rank = "Initié";
-            else if (level > 5) rank = "Apprenti";
+            try {
+                const level = Math.floor(userData.xp / 100) + 1;
+                let rank = "Novice";
+                if (level > 40) rank = "Légende";
+                else if (level > 30) rank = "Maître";
+                else if (level > 20) rank = "Expert";
+                else if (level > 10) rank = "Initié";
+                else if (level > 5) rank = "Apprenti";
 
-            document.getElementById('user-level').innerText = rank + " - Niveau " + level;
-            document.getElementById('xp-progress').style.width = (userData.xp % 100) + "%";
-            document.getElementById('user-xp').innerText = (userData.xp % 100);
-            document.getElementById('stat-streak').innerText = "🔥 " + userData.streak;
-            const all = await new Promise(r => db.transaction("words").objectStore("words").getAll().onsuccess = (e) => r(e.target.result));
-            document.getElementById('stat-due').innerText = all.filter(w => w.nextReview <= Date.now()).length;
+                const lvlEl = document.getElementById('user-level');
+                if (lvlEl) lvlEl.innerText = rank + " - Niveau " + level;
+                
+                const progEl = document.getElementById('xp-progress');
+                if (progEl) progEl.style.width = (userData.xp % 100) + "%";
+                
+                const xpEl = document.getElementById('user-xp');
+                if (xpEl) xpEl.innerText = (userData.xp % 100);
+                
+                const streakEl = document.getElementById('stat-streak');
+                if (streakEl) streakEl.innerText = "🔥 " + (userData.streak || 0);
+
+                const all = await new Promise((resolve, reject) => {
+                    const tx = db.transaction("words", "readonly");
+                    const req = tx.objectStore("words").getAll();
+                    req.onsuccess = (e) => resolve(e.target.result);
+                    req.onerror = (e) => reject(e);
+                });
+
+                const dueEl = document.getElementById('stat-due');
+                if (dueEl) dueEl.innerText = all.filter(w => w.nextReview <= Date.now()).length;
+            } catch (e) {
+                console.error("updateDashboard error:", e);
+            }
         }
 
         function renderStudyList() {
+            if (!db) return;
             db.transaction("words").objectStore("words").getAll().onsuccess = (e) => {
-                document.getElementById('study-list').innerHTML = e.target.result.map(w => `
+                const listEl = document.getElementById('study-list');
+                if (!listEl) return;
+                listEl.innerHTML = e.target.result.map(w => `
                 <div class="study-card">
                     <div class="study-en">${w.en}</div>
                     <div class="study-fr">${w.fr}</div>
@@ -605,8 +659,11 @@
         }
 
         function renderList() {
+            if (!db) return;
             db.transaction("words").objectStore("words").getAll().onsuccess = (e) => {
-                document.getElementById('word-list').innerHTML = e.target.result.map(w => `
+                const listEl = document.getElementById('word-list');
+                if (!listEl) return;
+                listEl.innerHTML = e.target.result.map(w => `
                 <div class="word-item" onclick="showEditForm(${w.id}, '${w.fr.replace(/'/g, "\\'")}', '${w.en.replace(/'/g, "\\'")}')">
                     <b>${w.fr}</b> <span>➔ ${w.en}</span>
                 </div>`).join('');
@@ -622,19 +679,32 @@
         }
 
         function saveWord() {
-            const id = document.getElementById('edit-id').value, fr = document.getElementById('edit-fr').value.trim(), en = document.getElementById('edit-en').value.trim();
+            const id = document.getElementById('edit-id').value, 
+                  fr = document.getElementById('edit-fr').value.trim(), 
+                  en = document.getElementById('edit-en').value.trim();
             if (!fr || !en) return;
             const store = db.transaction("words", "readwrite").objectStore("words");
-            if (id) store.get(Number(id)).onsuccess = (e) => store.put({ ...e.target.result, fr, en });
-            else store.add({ fr, en, repetition: 0, interval: 0, efactor: 2.5, direction: 'FR_EN', nextReview: Date.now() });
+            if (id) {
+                store.get(Number(id)).onsuccess = (e) => {
+                    const data = e.target.result;
+                    data.fr = fr;
+                    data.en = en;
+                    store.put(data);
+                };
+            } else {
+                store.add({ fr, en, repetition: 0, interval: 0, efactor: 2.5, direction: 'FR_EN', nextReview: Date.now() });
+            }
             setTimeout(() => switchView('list'), 100);
         }
 
         function deleteWord() {
-            if (confirm("Supprimer ?")) db.transaction("words", "readwrite").objectStore("words").delete(Number(document.getElementById('edit-id').value)).onsuccess = () => switchView('list');
+            if (confirm("Supprimer ?")) {
+                db.transaction("words", "readwrite").objectStore("words").delete(Number(document.getElementById('edit-id').value)).onsuccess = () => switchView('list');
+            }
         }
 
         async function startSession() {
+            if (!db) return;
             const words = await new Promise(r => db.transaction("words").objectStore("words").getAll().onsuccess = (e) => r(e.target.result));
             let due = words.filter(w => w.nextReview <= Date.now()).sort(() => Math.random() - 0.5);
             if (due.length < 20) {
@@ -648,16 +718,25 @@
             switchView('review');
         }
 
-        async function showCard() {
+        function showCard() {
             const w = session[currentIndex];
+            if (!w) return;
             hintUsed = false;
 
-            document.getElementById('review-progress').innerText = (currentIndex + 1) + "/" + session.length;
-            document.getElementById('mode-badge').innerText = '🧠 MÉMORISATION';
-            document.getElementById('mode-badge').style.background = 'var(--primary)';
+            const progEl = document.getElementById('review-progress');
+            if (progEl) progEl.innerText = (currentIndex + 1) + "/" + session.length;
+            
+            const badgeEl = document.getElementById('mode-badge');
+            if (badgeEl) {
+                badgeEl.innerText = '🧠 MÉMORISATION';
+                badgeEl.style.background = 'var(--primary)';
+            }
 
-            document.getElementById('card-question').innerText = w.direction === 'FR_EN' ? "Traduction Anglaise ?" : "Traduction Française ?";
-            document.getElementById('card-main-text').innerText = w.direction === 'FR_EN' ? w.fr : w.en;
+            const qEl = document.getElementById('card-question');
+            if (qEl) qEl.innerText = w.direction === 'FR_EN' ? "Traduction Anglaise ?" : "Traduction Française ?";
+            
+            const txtEl = document.getElementById('card-main-text');
+            if (txtEl) txtEl.innerText = w.direction === 'FR_EN' ? w.fr : w.en;
 
             document.getElementById('flash-actions').style.display = 'block';
             document.getElementById('score-actions').style.display = 'none';
@@ -670,15 +749,19 @@
             const w = session[currentIndex];
             const target = w.direction === 'FR_EN' ? w.en : w.fr;
             const display = document.getElementById('hint-display');
+            if (!display) return;
 
             display.innerText = "Récupération de l'indice...";
             display.style.display = 'block';
-            if (!isAuto) document.getElementById('btn-hint').style.display = 'none';
+            if (!isAuto) {
+                const btnHint = document.getElementById('btn-hint');
+                if (btnHint) btnHint.style.display = 'none';
+            }
 
             try {
-                const resp = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${target.toLowerCase()}`);
+                const resp = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(target.toLowerCase())}`);
                 const data = await resp.json();
-                const hint = data[0]?.meanings[0]?.definitions[0]?.definition || "Pas d'indice disponible.";
+                const hint = (data && data[0]?.meanings[0]?.definitions[0]?.definition) || "Pas d'indice disponible.";
                 display.innerText = "Indice : " + hint;
             } catch (e) {
                 display.innerText = "Indice : Commence par '" + target[0] + "' et finit par '" + target[target.length - 1] + "'";
@@ -687,32 +770,22 @@
 
         function revealCard() {
             const w = session[currentIndex];
-            document.getElementById('card-main-text').innerText = w.direction === 'FR_EN' ? w.en : w.fr;
+            if (!w) return;
+            const txtEl = document.getElementById('card-main-text');
+            if (txtEl) txtEl.innerText = w.direction === 'FR_EN' ? w.en : w.fr;
             document.getElementById('flash-actions').style.display = 'none';
             document.getElementById('score-actions').style.display = 'grid';
         }
 
-        function checkCloze() {
-            const w = session[currentIndex], ans = (w.direction === 'FR_EN' ? w.en : w.fr).toLowerCase().trim();
-            if (document.getElementById('cloze-input').value.toLowerCase().trim() === ans) {
-                userData.xp += 15; submitScore(5);
-            } else {
-                alert("Raté ! La réponse était : " + ans); submitScore(1);
-            }
-        }
-
         async function submitScore(q) {
             const w = session[currentIndex];
+            if (!w) return;
             let { repetition: r, interval: i, efactor: f } = w;
 
-            // Logique XP : uniquement pour Bien (4) ou Facile (5)
             if (q === 4) userData.xp += 5;
             if (q === 5) userData.xp += 10;
 
-            if (hintUsed) {
-                q = 1;
-                console.log("Pénalité indice appliquée");
-            }
+            if (hintUsed) q = 1;
 
             if (q < 3) { r = 0; i = 1; } else {
                 if (r === 0) i = 1; else if (r === 1) i = 6; else i = Math.round(i * f);
@@ -733,14 +806,11 @@
                     switchView('dashboard');
                 }
             };
-            tx.onerror = () => {
-                alert("Erreur de sauvegarde. On continue...");
-                currentIndex++;
-                if (currentIndex < session.length) showCard(); else switchView('dashboard');
-            };
         }
 
-        window.onload = () => switchView('dashboard');
+        window.onload = () => {
+            setTimeout(() => switchView('dashboard'), 100);
+        };
     </script>
 </body>
 
