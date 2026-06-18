@@ -1,12 +1,12 @@
-const CACHE_NAME = 'vocab-master-v5';
+const CACHE_NAME = 'vocab-master-v7';
 const ASSETS = [
-  '/',
   'index.html',
-  'manifest.json'
+  'manifest.json',
+  'logo.png'
 ];
 
-// Installation : Mise en cache des fichiers essentiels
 self.addEventListener('install', (e) => {
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS);
@@ -14,27 +14,33 @@ self.addEventListener('install', (e) => {
   );
 });
 
-// Activation : Nettoyage des anciens caches
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-// Récupération : Stratégie Cache-First
 self.addEventListener('fetch', (e) => {
-  // On ne met pas en cache les appels API (Dictionnaire)
   if (e.request.url.includes('dictionaryapi')) {
     return fetch(e.request);
   }
 
+  // Network-First Strategy to ensure updates are served immediately when online
   e.respondWith(
-    caches.match(e.request).then((response) => {
-      return response || fetch(e.request);
-    })
+    fetch(e.request)
+      .then((response) => {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(e.request, clone);
+        });
+        return response;
+      })
+      .catch(() => {
+        return caches.match(e.request);
+      })
   );
 });
