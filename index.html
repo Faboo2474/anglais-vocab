@@ -38,6 +38,7 @@
             background-color: var(--background);
             color: var(--text);
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
         }
 
@@ -53,12 +54,13 @@
             flex: 1;
             flex-direction: column;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             padding: 20px;
             padding-bottom: 120px;
         }
 
         .view.active {
-            display: flex;
+            display: block;
             animation: fadeIn 0.3s;
         }
 
