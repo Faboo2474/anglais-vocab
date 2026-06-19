@@ -209,7 +209,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
         }
 
-        input {
+        input, textarea {
             width: 100%;
             background: #ffffff;
             border: 1px solid var(--border);
@@ -220,9 +220,10 @@
             margin-bottom: 15px;
             outline: none;
             transition: border-color 0.2s;
+            font-family: inherit;
         }
 
-        input:focus {
+        input:focus, textarea:focus {
             border-color: var(--primary);
         }
 
@@ -281,25 +282,50 @@
         <div id="view-dashboard" class="view active">
             <div class="header">
                 <img src="logo.png"
-                    style="width: 120px; height: 120px; margin-bottom: 15px; animation: fadeIn 1s ease-out; filter: drop-shadow(0 4px 10px rgba(255, 107, 0, 0.15));">
+                    style="width: 100px; height: 100px; margin-bottom: 10px; animation: fadeIn 1s ease-out; filter: drop-shadow(0 4px 10px rgba(255, 107, 0, 0.15));">
                 <h2 style="font-size:1.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--primary);">VocabMaster</h2>
                 <p style="margin-top:5px; font-size:14px; font-weight: 500; color: var(--text-muted);">Votre assistant de révision quotidien</p>
             </div>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div id="stat-due-today" class="stat-val">0</div>
-                    <div style="font-size:10px; font-weight: 700; color:var(--text-muted)">AUJOURD'HUI</div>
+            
+            <!-- SECTION VOCABULAIRE -->
+            <div style="margin-top: 15px;">
+                <h3 style="font-size: 14px; font-weight: 800; color: var(--text); border-bottom: 2px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">Vocabulaire</h3>
+                <div class="stats-grid" style="margin: 10px 0;">
+                    <div class="stat-card">
+                        <div id="stat-due-today" class="stat-val">0</div>
+                        <div style="font-size:10px; font-weight: 700; color:var(--text-muted)">AUJOURD'HUI</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="stat-due-week" class="stat-val">0</div>
+                        <div style="font-size:10px; font-weight: 700; color:var(--text-muted)">7 JOURS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="stat-due-month" class="stat-val">0</div>
+                        <div style="font-size:10px; font-weight: 700; color:var(--text-muted)">30 JOURS</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div id="stat-due-week" class="stat-val">0</div>
-                    <div style="font-size:10px; font-weight: 700; color:var(--text-muted)">7 JOURS</div>
-                </div>
-                <div class="stat-card">
-                    <div id="stat-due-month" class="stat-val">0</div>
-                    <div style="font-size:10px; font-weight: 700; color:var(--text-muted)">30 JOURS</div>
-                </div>
+                <button class="btn" style="height: 60px; margin-top: 5px; margin-bottom: 15px;" onclick="startSession('words')">RÉVISER VOCABULAIRE</button>
             </div>
-            <button class="btn" style="height: 80px;" onclick="startSession()">RÉVISER</button>
+
+            <!-- SECTION GRAMMAIRE -->
+            <div style="margin-top: 15px;">
+                <h3 style="font-size: 14px; font-weight: 800; color: var(--text); border-bottom: 2px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">Grammaire</h3>
+                <div class="stats-grid" style="margin: 10px 0;">
+                    <div class="stat-card">
+                        <div id="stat-grammar-due-today" class="stat-val">0</div>
+                        <div style="font-size:10px; font-weight: 700; color:var(--text-muted)">AUJOURD'HUI</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="stat-grammar-due-week" class="stat-val">0</div>
+                        <div style="font-size:10px; font-weight: 700; color:var(--text-muted)">7 JOURS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="stat-grammar-due-month" class="stat-val">0</div>
+                        <div style="font-size:10px; font-weight: 700; color:var(--text-muted)">30 JOURS</div>
+                    </div>
+                </div>
+                <button class="btn" style="height: 60px; margin-top: 5px; background: linear-gradient(135deg, var(--secondary), var(--primary-light));" onclick="startSession('grammar')">RÉVISER GRAMMAIRE</button>
+            </div>
         </div>
 
         <!-- REVIEW -->
@@ -338,29 +364,56 @@
         <!-- STUDY (REVISION) -->
         <div id="view-study" class="view">
             <h1 style="font-size:1.5rem; margin-bottom:15px;">Révision</h1>
+            
+            <!-- TOGGLE TABS FOR STUDY -->
+            <div class="toggle-bar" style="display: flex; gap: 10px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 12px;">
+                <button id="toggle-study-words" class="toggle-btn active" onclick="switchStudyTab('words')" style="flex: 1; border: none; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer; background: white; color: var(--primary); transition: all 0.2s;">Mots</button>
+                <button id="toggle-study-grammar" class="toggle-btn" onclick="switchStudyTab('grammar')" style="flex: 1; border: none; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Grammaire</button>
+            </div>
+
             <div id="study-list" class="study-grid"></div>
         </div>
 
         <!-- LIST -->
         <div id="view-list" class="view">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h1 style="font-size:1.5rem">Mots</h1>
+                <h1 style="font-size:1.5rem" id="list-title">Mots</h1>
                 <button class="btn" style="width:auto; padding:8px 15px; margin:0;"
-                    onclick="showEditForm(null, '', '')">+ AJOUTER</button>
+                    onclick="showEditForm(null)">+ AJOUTER</button>
             </div>
+            
+            <!-- TOGGLE TABS FOR LIST -->
+            <div class="toggle-bar" style="display: flex; gap: 10px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 12px;">
+                <button id="toggle-list-words" class="toggle-btn active" onclick="switchListTab('words')" style="flex: 1; border: none; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer; background: white; color: var(--primary); transition: all 0.2s;">Mots</button>
+                <button id="toggle-list-grammar" class="toggle-btn" onclick="switchListTab('grammar')" style="flex: 1; border: none; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Grammaire</button>
+            </div>
+
             <div id="word-list"></div>
         </div>
-
+ 
         <!-- EDIT -->
         <div id="view-edit" class="view">
             <h2 id="edit-title">Éditer</h2>
             <div style="margin-top:15px;">
                 <input type="hidden" id="edit-id">
-                <input type="text" id="edit-fr" placeholder="Français">
-                <input type="text" id="edit-en" placeholder="Anglais">
-                <button class="btn" onclick="saveWord()">SAUVER</button>
-                <button id="del-btn" class="btn" style="background:#ef4444" onclick="deleteWord()">SUPPRIMER</button>
-                <button class="btn" style="background:transparent; border:1px solid rgba(255,255,255,0.1)"
+                <input type="hidden" id="edit-type">
+                
+                <!-- Fields for Words -->
+                <div id="fields-words">
+                    <input type="text" id="edit-fr" placeholder="Français">
+                    <input type="text" id="edit-en" placeholder="Anglais">
+                </div>
+                
+                <!-- Fields for Grammar -->
+                <div id="fields-grammar" style="display: none;">
+                    <input type="text" id="edit-g-title" placeholder="Titre (ex: Present Perfect)">
+                    <textarea id="edit-g-explanation" placeholder="Règle de grammaire / Explication" style="min-height: 100px; resize: vertical;"></textarea>
+                    <textarea id="edit-g-example" placeholder="Exemple (facultatif)" style="min-height: 80px; resize: vertical;"></textarea>
+                </div>
+
+                <button class="btn" onclick="saveItem()">SAUVER</button>
+                <button id="del-btn" class="btn" style="background:#ef4444" onclick="deleteItem()">SUPPRIMER</button>
+                <button class="btn" style="background:transparent; border:1px solid var(--border); color: var(--text)"
                     onclick="switchView('list')">RETOUR</button>
             </div>
         </div>
@@ -381,21 +434,9 @@
 
     <script>
         let db, session = [], currentIndex = 0;
-        let userData = { xp: 0, streak: 0, lastVisit: null };
-
-        // Chargement sécurisé des données utilisateur
-        try {
-            const saved = localStorage.getItem('vocabUser');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (parsed && typeof parsed.xp === 'number') {
-                    userData = parsed;
-                }
-            }
-        } catch (e) {
-            console.error("Erreur lecture localStorage:", e);
-        }
-
+        let sessionType = 'words';
+        let activeListTab = 'words';
+        let activeStudyTab = 'words';
         let hintUsed = false;
 
         const initialVocab = [
@@ -499,20 +540,41 @@
             { en: "deal with", fr: "s'occupant de (manage)" },
             { en: "look into", fr: "investigate" },
             { en: "right away", fr: "tout de suite" },
-            { en: "right now", fr: "en ce moment" },
+            { en: "right now", font: "en ce moment" },
             { en: "run out of", fr: "manquer de" },
             { en: "garbage can", fr: "poubelle" },
             { en: "waste", fr: "déchet" },
             { en: "bean", fr: "haricot" }
         ];
 
+        const initialGrammar = [
+            {
+                title: "Present Perfect",
+                explanation: "Utilisé pour parler d'actions passées ayant un impact sur le présent. Structure : Have/Has + Participe Passé.",
+                example: "I have lost my keys (so I can't enter now)."
+            },
+            {
+                title: "Since vs For",
+                explanation: "Since indique le point de départ d'une action. For indique la durée d'une action.",
+                example: "I have lived here since 2010. / I have lived here for 10 years."
+            },
+            {
+                title: "Used to",
+                explanation: "Utilisé pour exprimer une habitude passée révolue (quelque chose qu'on faisait avant mais plus maintenant).",
+                example: "I used to play tennis when I was young."
+            }
+        ];
+
         const currentVocabVersion = 7;
 
-        const req = indexedDB.open("VocabMasterUltimate", 1);
+        const req = indexedDB.open("VocabMasterUltimate", 2);
         req.onupgradeneeded = (e) => {
             const d = e.target.result;
             if (!d.objectStoreNames.contains("words")) {
                 d.createObjectStore("words", { keyPath: "id", autoIncrement: true });
+            }
+            if (!d.objectStoreNames.contains("grammar")) {
+                d.createObjectStore("grammar", { keyPath: "id", autoIncrement: true });
             }
         };
         req.onsuccess = (e) => { 
@@ -524,8 +586,9 @@
         function seed() {
             if (!db) return;
             const savedVersion = localStorage.getItem('vocabVersion');
-            const tx = db.transaction("words", "readwrite");
+            const tx = db.transaction(["words", "grammar"], "readwrite");
             const store = tx.objectStore("words");
+            const grammarStore = tx.objectStore("grammar");
             
             store.getAll().onsuccess = (ev) => {
                 const existing = ev.target.result;
@@ -587,6 +650,22 @@
                     }
                 }
             };
+
+            grammarStore.getAll().onsuccess = (ev) => {
+                const existingGrammar = ev.target.result;
+                if (existingGrammar.length === 0) {
+                    initialGrammar.forEach(g => {
+                        grammarStore.add({
+                            ...g,
+                            repetition: 0,
+                            interval: 0,
+                            efactor: 2.5,
+                            nextReview: Date.now()
+                        });
+                    });
+                }
+            };
+            
             tx.oncomplete = () => updateDashboard();
         }
 
@@ -605,8 +684,8 @@
                 const tab = document.getElementById('tab-' + v);
                 if (tab) tab.classList.add('active');
                 
-                if (v === 'list') renderList();
-                if (v === 'study') renderStudyList();
+                if (v === 'list') switchListTab(activeListTab);
+                if (v === 'study') switchStudyTab(activeStudyTab);
                 if (v === 'dashboard') updateDashboard();
             } catch (e) {
                 console.error("switchView error:", e);
@@ -616,100 +695,287 @@
         async function updateDashboard() {
             if (!db) return;
             try {
-                const all = await new Promise((resolve, reject) => {
+                // Vocab stats
+                const allWords = await new Promise((resolve, reject) => {
                     const tx = db.transaction("words", "readonly");
                     const req = tx.objectStore("words").getAll();
                     req.onsuccess = (e) => resolve(e.target.result);
                     req.onerror = (e) => reject(e);
                 });
 
+                // Grammar stats
+                const allGrammar = await new Promise((resolve, reject) => {
+                    const tx = db.transaction("grammar", "readonly");
+                    const req = tx.objectStore("grammar").getAll();
+                    req.onsuccess = (e) => resolve(e.target.result);
+                    req.onerror = (e) => reject(e);
+                });
+
                 const now = Date.now();
-                const dueToday = all.filter(w => w.nextReview <= now).length;
-                const dueWeek = all.filter(w => w.nextReview <= now + 7 * 86400000).length;
-                const dueMonth = all.filter(w => w.nextReview <= now + 30 * 86400000).length;
+                
+                // Vocab counters
+                const vocabDueToday = allWords.filter(w => w.nextReview <= now).length;
+                const vocabDueWeek = allWords.filter(w => w.nextReview <= now + 7 * 86400000).length;
+                const vocabDueMonth = allWords.filter(w => w.nextReview <= now + 30 * 86400000).length;
 
-                const todayEl = document.getElementById('stat-due-today');
-                if (todayEl) todayEl.innerText = dueToday;
+                // Grammar counters
+                const grammarDueToday = allGrammar.filter(g => g.nextReview <= now).length;
+                const grammarDueWeek = allGrammar.filter(g => g.nextReview <= now + 7 * 86400000).length;
+                const grammarDueMonth = allGrammar.filter(g => g.nextReview <= now + 30 * 86400000).length;
 
-                const weekEl = document.getElementById('stat-due-week');
-                if (weekEl) weekEl.innerText = dueWeek;
+                // Update Vocab UI elements
+                const vocabTodayEl = document.getElementById('stat-due-today');
+                if (vocabTodayEl) vocabTodayEl.innerText = vocabDueToday;
+                const vocabWeekEl = document.getElementById('stat-due-week');
+                if (vocabWeekEl) vocabWeekEl.innerText = vocabDueWeek;
+                const vocabMonthEl = document.getElementById('stat-due-month');
+                if (vocabMonthEl) vocabMonthEl.innerText = vocabDueMonth;
 
-                const monthEl = document.getElementById('stat-due-month');
-                if (monthEl) monthEl.innerText = dueMonth;
+                // Update Grammar UI elements
+                const grammarTodayEl = document.getElementById('stat-grammar-due-today');
+                if (grammarTodayEl) grammarTodayEl.innerText = grammarDueToday;
+                const grammarWeekEl = document.getElementById('stat-grammar-due-week');
+                if (grammarWeekEl) grammarWeekEl.innerText = grammarDueWeek;
+                const grammarMonthEl = document.getElementById('stat-grammar-due-month');
+                if (grammarMonthEl) grammarMonthEl.innerText = grammarDueMonth;
+
             } catch (e) {
                 console.error("updateDashboard error:", e);
             }
         }
 
-        function renderStudyList() {
-            if (!db) return;
-            db.transaction("words").objectStore("words").getAll().onsuccess = (e) => {
-                const listEl = document.getElementById('study-list');
-                if (!listEl) return;
-                listEl.innerHTML = e.target.result.map(w => `
-                <div class="study-card">
-                    <div class="study-en">${w.en}</div>
-                    <div class="study-fr">${w.fr}</div>
-                </div>`).join('');
-            };
+        function switchListTab(tab) {
+            activeListTab = tab;
+            const wordsBtn = document.getElementById('toggle-list-words');
+            const grammarBtn = document.getElementById('toggle-list-grammar');
+            const listTitle = document.getElementById('list-title');
+
+            if (tab === 'words') {
+                wordsBtn.style.background = 'white';
+                wordsBtn.style.color = 'var(--primary)';
+                wordsBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                
+                grammarBtn.style.background = 'transparent';
+                grammarBtn.style.color = 'var(--text-muted)';
+                grammarBtn.style.boxShadow = 'none';
+
+                listTitle.innerText = "Mots";
+            } else {
+                grammarBtn.style.background = 'white';
+                grammarBtn.style.color = 'var(--primary)';
+                grammarBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                
+                wordsBtn.style.background = 'transparent';
+                wordsBtn.style.color = 'var(--text-muted)';
+                wordsBtn.style.boxShadow = 'none';
+
+                listTitle.innerText = "Grammaire";
+            }
+            renderList();
         }
 
         function renderList() {
             if (!db) return;
-            db.transaction("words").objectStore("words").getAll().onsuccess = (e) => {
+            const storeName = activeListTab;
+            const tx = db.transaction(storeName, "readonly");
+            tx.objectStore(storeName).getAll().onsuccess = (e) => {
                 const listEl = document.getElementById('word-list');
                 if (!listEl) return;
-                listEl.innerHTML = e.target.result.map(w => `
-                <div class="word-item" onclick="showEditForm(${w.id}, '${w.fr.replace(/'/g, "\\'")}', '${w.en.replace(/'/g, "\\'")}')">
-                    <b>${w.en}</b> <span>➔ ${w.fr}</span>
-                </div>`).join('');
+                const items = e.target.result;
+                
+                if (storeName === 'words') {
+                    listEl.innerHTML = items.map(w => `
+                    <div class="word-item" onclick="showEditForm(${w.id})">
+                        <b>${w.en}</b> <span>➔ ${w.fr}</span>
+                    </div>`).join('');
+                } else {
+                    listEl.innerHTML = items.map(g => `
+                    <div class="word-item" onclick="showEditForm(${g.id})">
+                        <b>${g.title}</b> <span style="font-size: 13px; color: var(--text-muted); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 4px;">${g.explanation}</span>
+                    </div>`).join('');
+                }
             };
         }
 
-        function showEditForm(id, fr, en) {
+        function switchStudyTab(tab) {
+            activeStudyTab = tab;
+            const wordsBtn = document.getElementById('toggle-study-words');
+            const grammarBtn = document.getElementById('toggle-study-grammar');
+
+            if (tab === 'words') {
+                wordsBtn.style.background = 'white';
+                wordsBtn.style.color = 'var(--primary)';
+                wordsBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                
+                grammarBtn.style.background = 'transparent';
+                grammarBtn.style.color = 'var(--text-muted)';
+                grammarBtn.style.boxShadow = 'none';
+            } else {
+                grammarBtn.style.background = 'white';
+                grammarBtn.style.color = 'var(--primary)';
+                grammarBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                
+                wordsBtn.style.background = 'transparent';
+                wordsBtn.style.color = 'var(--text-muted)';
+                wordsBtn.style.boxShadow = 'none';
+            }
+            renderStudyList();
+        }
+
+        function renderStudyList() {
+            if (!db) return;
+            const storeName = activeStudyTab;
+            db.transaction(storeName).objectStore(storeName).getAll().onsuccess = (e) => {
+                const listEl = document.getElementById('study-list');
+                if (!listEl) return;
+                const items = e.target.result;
+                
+                if (storeName === 'words') {
+                    listEl.innerHTML = items.map(w => `
+                    <div class="study-card">
+                        <div class="study-en">${w.en}</div>
+                        <div class="study-fr">${w.fr}</div>
+                    </div>`).join('');
+                } else {
+                    listEl.innerHTML = items.map(g => `
+                    <div class="study-card">
+                        <div class="study-en" style="font-size: 18px;">${g.title}</div>
+                        <div class="study-fr" style="font-size: 14px; margin-top: 5px;">${g.explanation}</div>
+                        ${g.example ? `<div style="font-size: 13px; font-style: italic; color: var(--primary); margin-top: 8px;">Ex: ${g.example}</div>` : ''}
+                    </div>`).join('');
+                }
+            };
+        }
+
+        function showEditForm(id) {
             document.getElementById('edit-id').value = id || '';
-            document.getElementById('edit-fr').value = fr;
-            document.getElementById('edit-en').value = en;
+            document.getElementById('edit-type').value = activeListTab;
+            
+            const fieldsWords = document.getElementById('fields-words');
+            const fieldsGrammar = document.getElementById('fields-grammar');
+            const editTitleEl = document.getElementById('edit-title');
+            
+            if (activeListTab === 'words') {
+                fieldsWords.style.display = 'block';
+                fieldsGrammar.style.display = 'none';
+                editTitleEl.innerText = id ? "Éditer le mot" : "Ajouter un mot";
+                
+                document.getElementById('edit-fr').value = '';
+                document.getElementById('edit-en').value = '';
+                
+                if (id) {
+                    db.transaction("words").objectStore("words").get(id).onsuccess = (e) => {
+                        const w = e.target.result;
+                        if (w) {
+                            document.getElementById('edit-fr').value = w.fr;
+                            document.getElementById('edit-en').value = w.en;
+                        }
+                    };
+                }
+            } else {
+                fieldsWords.style.display = 'none';
+                fieldsGrammar.style.display = 'block';
+                editTitleEl.innerText = id ? "Éditer la règle" : "Ajouter une règle";
+                
+                document.getElementById('edit-g-title').value = '';
+                document.getElementById('edit-g-explanation').value = '';
+                document.getElementById('edit-g-example').value = '';
+                
+                if (id) {
+                    db.transaction("grammar").objectStore("grammar").get(id).onsuccess = (e) => {
+                        const g = e.target.result;
+                        if (g) {
+                            document.getElementById('edit-g-title').value = g.title;
+                            document.getElementById('edit-g-explanation').value = g.explanation;
+                            document.getElementById('edit-g-example').value = g.example || '';
+                        }
+                    };
+                }
+            }
+            
             document.getElementById('del-btn').style.display = id ? 'block' : 'none';
             switchView('edit');
         }
 
-        function saveWord() {
-            const id = document.getElementById('edit-id').value, 
-                  fr = document.getElementById('edit-fr').value.trim(), 
-                  en = document.getElementById('edit-en').value.trim();
-            if (!fr || !en) return;
-            const store = db.transaction("words", "readwrite").objectStore("words");
-            if (id) {
-                store.get(Number(id)).onsuccess = (e) => {
-                    const data = e.target.result;
-                    data.fr = fr;
-                    data.en = en;
-                    store.put(data);
-                };
+        function saveItem() {
+            const id = document.getElementById('edit-id').value;
+            const type = document.getElementById('edit-type').value;
+            const storeName = type;
+            
+            const tx = db.transaction(storeName, "readwrite");
+            const store = tx.objectStore(storeName);
+            
+            if (type === 'words') {
+                const fr = document.getElementById('edit-fr').value.trim();
+                const en = document.getElementById('edit-en').value.trim();
+                if (!fr || !en) return;
+                
+                if (id) {
+                    store.get(Number(id)).onsuccess = (e) => {
+                        const data = e.target.result;
+                        data.fr = fr;
+                        data.en = en;
+                        store.put(data);
+                    };
+                } else {
+                    store.add({ fr, en, repetition: 0, interval: 0, efactor: 2.5, direction: 'EN_FR', nextReview: Date.now() });
+                }
             } else {
-                store.add({ fr, en, repetition: 0, interval: 0, efactor: 2.5, direction: 'EN_FR', nextReview: Date.now() });
+                const title = document.getElementById('edit-g-title').value.trim();
+                const explanation = document.getElementById('edit-g-explanation').value.trim();
+                const example = document.getElementById('edit-g-example').value.trim();
+                if (!title || !explanation) return;
+                
+                if (id) {
+                    store.get(Number(id)).onsuccess = (e) => {
+                        const data = e.target.result;
+                        data.title = title;
+                        data.explanation = explanation;
+                        data.example = example;
+                        store.put(data);
+                    };
+                } else {
+                    store.add({ title, explanation, example, repetition: 0, interval: 0, efactor: 2.5, nextReview: Date.now() });
+                }
             }
-            setTimeout(() => switchView('list'), 100);
+            
+            tx.oncomplete = () => {
+                setTimeout(() => switchView('list'), 100);
+            };
         }
 
-        function deleteWord() {
-            if (confirm("Supprimer ?")) {
-                db.transaction("words", "readwrite").objectStore("words").delete(Number(document.getElementById('edit-id').value)).onsuccess = () => switchView('list');
+        function deleteItem() {
+            const id = document.getElementById('edit-id').value;
+            const type = document.getElementById('edit-type').value;
+            if (!id) return;
+            
+            if (confirm("Supprimer cet élément ?")) {
+                const tx = db.transaction(type, "readwrite");
+                tx.objectStore(type).delete(Number(id));
+                tx.oncomplete = () => switchView('list');
             }
         }
 
-        async function startSession() {
+        async function startSession(type = 'words') {
             if (!db) return;
-            const words = await new Promise(r => db.transaction("words").objectStore("words").getAll().onsuccess = (e) => r(e.target.result));
-            let due = words.filter(w => w.nextReview <= Date.now()).sort(() => Math.random() - 0.5);
+            sessionType = type;
+            const storeName = (type === 'grammar') ? 'grammar' : 'words';
+            
+            const items = await new Promise(r => {
+                const tx = db.transaction(storeName, "readonly");
+                tx.objectStore(storeName).getAll().onsuccess = (e) => r(e.target.result);
+            });
+            
+            let due = items.filter(w => w.nextReview <= Date.now()).sort(() => Math.random() - 0.5);
             
             if (due.length === 0) {
-                alert("Aucun mot à réviser pour le moment ! Tout est à jour.");
+                const typeName = (type === 'grammar') ? "règle de grammaire" : "mot";
+                alert(`Aucun ${typeName} à réviser pour le moment ! Tout est à jour.`);
                 return;
             }
             
-            session = due.slice(0, 10);
+            const limit = (type === 'grammar') ? 3 : 10;
+            session = due.slice(0, limit);
             currentIndex = 0;
             showCard();
             switchView('review');
@@ -724,27 +990,37 @@
             if (progEl) progEl.innerText = (currentIndex + 1) + "/" + session.length;
             
             const badgeEl = document.getElementById('mode-badge');
-            if (badgeEl) {
-                badgeEl.innerText = '🧠 FLASHCARD';
-            }
-
             const qEl = document.getElementById('card-question');
-            if (qEl) qEl.innerText = "Que signifie ce mot en Français ?";
-            
             const txtEl = document.getElementById('card-main-text');
-            if (txtEl) {
-                txtEl.innerText = w.en;
-                txtEl.style.display = 'block';
+            const btnHint = document.getElementById('btn-hint');
+            const display = document.getElementById('hint-display');
+
+            display.style.display = 'none';
+
+            if (sessionType === 'grammar') {
+                if (badgeEl) badgeEl.innerText = '📝 GRAMMAIRE';
+                if (qEl) qEl.innerText = "Rappelez-vous de cette règle de grammaire";
+                if (txtEl) {
+                    txtEl.innerText = w.title;
+                    txtEl.style.fontSize = '28px';
+                    txtEl.style.fontWeight = '900';
+                    txtEl.style.lineHeight = '1.2';
+                }
+                if (btnHint) btnHint.style.display = 'none';
+            } else {
+                if (badgeEl) badgeEl.innerText = '🧠 FLASHCARD';
+                if (qEl) qEl.innerText = "Que signifie ce mot en Français ?";
+                if (txtEl) {
+                    txtEl.innerText = w.en;
+                    txtEl.style.fontSize = '32px';
+                    txtEl.style.fontWeight = '900';
+                    txtEl.style.lineHeight = '1.2';
+                }
+                if (btnHint) btnHint.style.display = 'flex';
             }
 
             document.getElementById('flash-actions').style.display = 'block';
             document.getElementById('score-actions').style.display = 'none';
-            document.getElementById('hint-display').style.display = 'none';
-            
-            const btnHint = document.getElementById('btn-hint');
-            if (btnHint) {
-                btnHint.style.display = 'flex';
-            }
         }
 
         async function getAIHint(isAuto = false) {
@@ -775,7 +1051,24 @@
             const w = session[currentIndex];
             if (!w) return;
             const txtEl = document.getElementById('card-main-text');
-            if (txtEl) txtEl.innerText = w.fr;
+            
+            if (sessionType === 'grammar') {
+                if (txtEl) {
+                    txtEl.style.fontSize = '18px';
+                    txtEl.style.fontWeight = '500';
+                    txtEl.innerHTML = `
+                        <div style="font-weight: 800; font-size: 22px; color: var(--primary); margin-bottom: 10px;">${w.title}</div>
+                        <div style="margin-bottom: 15px; line-height: 1.4;">${w.explanation}</div>
+                        ${w.example ? `<div style="font-style: italic; color: var(--primary); background: #fff8f3; padding: 10px; border-radius: 10px; border: 1px dashed var(--primary-light);">Ex: ${w.example}</div>` : ''}
+                    `;
+                }
+            } else {
+                if (txtEl) {
+                    txtEl.style.fontSize = '32px';
+                    txtEl.style.fontWeight = '900';
+                    txtEl.innerText = w.fr;
+                }
+            }
             document.getElementById('flash-actions').style.display = 'none';
             document.getElementById('score-actions').style.display = 'grid';
         }
@@ -785,20 +1078,45 @@
             if (!w) return;
             let { repetition: r, interval: i, efactor: f } = w;
 
-            if (hintUsed) {
+            if (hintUsed && sessionType === 'words') {
                 q = 1;
                 console.log("Pénalité indice appliquée");
             }
 
-            if (q < 3) { r = 0; i = 1; } else {
-                if (r === 0) i = 1; else if (r === 1) i = 6; else i = Math.round(i * f);
-                r++;
-            }
+            // Calcul du facteur de facilité (Efactor) selon la formule SM-2
             f = Math.max(1.3, f + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)));
-            const up = { ...w, repetition: r, interval: i, efactor: f, direction: 'EN_FR', nextReview: Date.now() + i * 86400000 };
 
-            const tx = db.transaction("words", "readwrite");
-            tx.objectStore("words").put(up);
+            let nextReviewTime;
+            let storeItem;
+
+            if (q < 4) {
+                // Échec (Revoir / Dur) -> Revoir immédiatement dans la session en cours et réinitialiser
+                r = 0;
+                i = 0;
+                nextReviewTime = Date.now();
+                storeItem = { ...w, repetition: r, interval: i, efactor: f, nextReview: nextReviewTime };
+                
+                // On rajoute l'élément à la fin de la session active pour le ré-interroger
+                session.push(storeItem);
+            } else {
+                // Réussite (Bien / Facile)
+                if (r === 0) {
+                    i = 1; // Le lendemain
+                } else if (r === 1) {
+                    i = 2; // Dans 2 jours (espacement progressif)
+                } else if (r === 2) {
+                    i = 4; // Dans 4 jours
+                } else {
+                    i = Math.max(1, Math.round(i * f)); // Espacement exponentiel SM-2 classique basé sur f
+                }
+                r++;
+                nextReviewTime = Date.now() + i * 86400000;
+                storeItem = { ...w, repetition: r, interval: i, efactor: f, nextReview: nextReviewTime };
+            }
+            
+            const storeName = (sessionType === 'grammar') ? 'grammar' : 'words';
+            const tx = db.transaction(storeName, "readwrite");
+            tx.objectStore(storeName).put(storeItem);
             tx.oncomplete = () => {
                 currentIndex++;
                 if (currentIndex < session.length) {
@@ -814,6 +1132,7 @@
             setTimeout(() => switchView('dashboard'), 100);
         };
     </script>
+
 </body>
 
 </html>
