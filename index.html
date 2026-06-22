@@ -551,23 +551,73 @@
 
         const initialGrammar = [
             {
-                title: "Present Perfect",
-                explanation: "Utilisé pour parler d'actions passées ayant un impact sur le présent. Structure : Have/Has + Participe Passé.",
-                example: "I have lost my keys (so I can't enter now)."
+                title: "Present Simple (Temps Simple)",
+                explanation: "Utilisé pour les habitudes, vérités générales ou faits permanents. Règle clé : On ajoute un '-s' ou '-es' à la 3ème personne du singulier (he, she, it). Pour les négations et questions, on utilise l'auxiliaire 'do/does'.",
+                example: "He works from home. / Water boils at 100°C. / Do you like tea?"
             },
             {
-                title: "Since vs For",
-                explanation: "Since indique le point de départ d'une action. For indique la durée d'une action.",
-                example: "I have lived here since 2010. / I have lived here for 10 years."
+                title: "Past Simple (Temps Simple)",
+                explanation: "Utilisé pour une action passée, terminée et coupée du présent. Règle clé : Verbes réguliers +ed. Verbes irréguliers : 2ème colonne. Auxiliaire 'did' pour négations/questions (le verbe repasse à la base verbale).",
+                example: "She visited Paris in 2020. / They went to the cinema. / Did you see him?"
             },
             {
-                title: "Used to",
-                explanation: "Utilisé pour exprimer une habitude passée révolue (quelque chose qu'on faisait avant mais plus maintenant).",
-                example: "I used to play tennis when I was young."
+                title: "Present Perfect (Temps Perfect)",
+                explanation: "Fait le lien entre le passé et le présent (constat d'une action passée ayant un résultat présent, expérience ou durée commencée dans le passé). Structure : Have/Has + Participe Passé (V-ed ou 3ème colonne).",
+                example: "I have lost my keys (so I can't enter now). / She has lived here for 5 years."
+            },
+            {
+                title: "Past Perfect (Temps Perfect)",
+                explanation: "Exprime une action passée antérieure à un autre moment ou action du passé (le passé du passé). Souvent traduit par le plus-que-parfait. Structure : Had + Participe Passé.",
+                example: "When the police arrived, the robber had already escaped."
+            },
+            {
+                title: "Present Continuous (Temps Continuous)",
+                explanation: "Utilisé pour une action en cours de déroulement au moment où l'on parle. Structure : Be (présent) + base verbale-ing.",
+                example: "I am learning English right now. / What are you doing?"
+            },
+            {
+                title: "Past Continuous (Temps Continuous)",
+                explanation: "Utilisé pour une action qui était en cours à un moment spécifique du passé, souvent interrompue par un événement soudain (au Past Simple). Structure : Was/Were + base verbale-ing.",
+                example: "I was sleeping when the phone rang. / What were you doing at 8 PM?"
+            },
+            {
+                title: "Future Simple (Will) (Futur)",
+                explanation: "Utilisé pour des décisions spontanées prises sur le moment, des prédictions subjectives (opinion sans preuve physique) ou des faits inévitables. Structure : Will + Base Verbale.",
+                example: "I will help you with your bags! (décision instantanée). / I think he will win the match."
+            },
+            {
+                title: "Futur : Be Going To",
+                explanation: "Utilisé pour des intentions fermes (projets décidés avant d'en parler) ou des prédictions basées sur des preuves physiques visibles dans le présent.",
+                example: "I am going to study tonight. / Look at the sky! It is going to rain (les nuages sont noirs)."
+            },
+            {
+                title: "Futur via Present Continuous",
+                explanation: "S'emploie pour un arrangement futur précis, personnel et déjà planifié ou confirmé à l'avance (ex: rendez-vous, billets de voyage achetés, invitations validées). Indique que tout est préparé.",
+                example: "I am flying to London tomorrow (j'ai mon billet d'avion). / We are meeting the CEO at 10 AM."
+            },
+            {
+                title: "Futur via Present Simple",
+                explanation: "Utilisé pour des événements futurs soumis à un horaire officiel, fixe, un calendrier public ou une programmation externe sur laquelle on n'a pas de contrôle (trains, vols, cinéma, horaires scolaires).",
+                example: "The train leaves at 8:15 AM tomorrow. / The film starts at 9 PM tonight."
+            },
+            {
+                title: "Le Gérondif (Gerund -ing)",
+                explanation: "La forme en -ing s'emploie dans 4 cas principaux : 1) Comme sujet de phrase ('Learning is fun'), 2) Après une préposition ('good at speaking', 'without asking'), 3) Après certains verbes ('enjoy', 'avoid', 'suggest', 'mind'), 4) Après des expressions à préposition 'to' ('look forward to', 'get used to'). Astuce : Remplacez l'action par 'something' (quelque chose). Si la phrase reste correcte, c'est un gérondif.",
+                example: "I enjoy swimming (I enjoy 'something'). / I'm looking forward to meeting you. / Smoking is forbidden."
+            },
+            {
+                title: "Les Modaux (Modal Verbs)",
+                explanation: "Les auxiliaires modaux (can, could, must, should, may, might) expriment une capacité, obligation, conseil ou probabilité. Règles clés : 1) Suivis d'une base verbale (sans 'to'), 2) Invariables (pas de -s à la 3e personne), 3) Pas de do/does aux formes négative et interrogative.",
+                example: "You must drive carefully. / He should study more. / Can you help me?"
+            },
+            {
+                title: "Le Modal 'Would'",
+                explanation: "Le modal 'Would' s'emploie principalement pour : 1) Exprimer le conditionnel (hypothèses : 'If + Past, ... would + V'), 2) Exprimer le futur dans le passé (discours indirect : 'will' devient 'would'), 3) Exprimer une habitude passée révolue (équivalent de used to pour des actions répétées).",
+                example: "If I won, I would buy a house. / She said she would come. / We would swim every morning."
             }
         ];
 
-        const currentVocabVersion = 7;
+        const currentVocabVersion = 10;
 
         const req = indexedDB.open("VocabMasterUltimate", 2);
         req.onupgradeneeded = (e) => {
@@ -594,6 +644,13 @@
             
             store.getAll().onsuccess = (ev) => {
                 const existing = ev.target.result;
+                
+                existing.forEach(w => {
+                    if (w.repetition === 0 && w.nextReview > Date.now()) {
+                        w.nextReview = Date.now();
+                        store.put(w);
+                    }
+                });
                 
                 if (savedVersion !== String(currentVocabVersion)) {
                     const oldVocabEn = new Set([
@@ -655,16 +712,65 @@
 
             grammarStore.getAll().onsuccess = (ev) => {
                 const existingGrammar = ev.target.result;
-                if (existingGrammar.length === 0) {
-                    initialGrammar.forEach(g => {
-                        grammarStore.add({
-                            ...g,
-                            repetition: 0,
-                            interval: 0,
-                            efactor: 2.5,
-                            nextReview: Date.now()
-                        });
+                
+                existingGrammar.forEach(g => {
+                    if (g.repetition === 0 && g.nextReview > Date.now()) {
+                        g.nextReview = Date.now();
+                        grammarStore.put(g);
+                    }
+                });
+
+                if (savedVersion !== String(currentVocabVersion)) {
+                    // Supprimer UNIQUEMENT l'ancienne règle Present Perfect par défaut pour éviter le doublon,
+                    // ainsi que les anciennes versions par défaut des règles existantes pour mise à jour.
+                    // "Since vs For" et "Used to" ne sont PAS supprimées.
+                    const oldGrammarTitles = new Set([
+                        "present perfect",
+                        "present simple (temps simple)",
+                        "past simple (temps simple)",
+                        "present perfect (temps perfect)",
+                        "past perfect (temps perfect)",
+                        "present continuous (temps continuous)",
+                        "past continuous (temps continuous)",
+                        "le gérondif (gerund -ing)",
+                        "les modaux (modal verbs)",
+                        "le modal 'would'"
+                    ]);
+                    
+                    const existingTitles = new Set();
+                    existingGrammar.forEach(g => {
+                        const titleLower = g.title.toLowerCase();
+                        if (oldGrammarTitles.has(titleLower)) {
+                            grammarStore.delete(g.id);
+                        } else {
+                            existingTitles.add(titleLower);
+                        }
                     });
+
+                    // Insérer les nouvelles règles et règles mises à jour
+                    initialGrammar.forEach(g => {
+                        if (!existingTitles.has(g.title.toLowerCase())) {
+                            grammarStore.add({
+                                ...g,
+                                repetition: 0,
+                                interval: 0,
+                                efactor: 2.5,
+                                nextReview: Date.now()
+                            });
+                        }
+                    });
+                } else {
+                    if (existingGrammar.length === 0) {
+                        initialGrammar.forEach(g => {
+                            grammarStore.add({
+                                ...g,
+                                repetition: 0,
+                                interval: 0,
+                                efactor: 2.5,
+                                nextReview: Date.now()
+                            });
+                        });
+                    }
                 }
             };
             
