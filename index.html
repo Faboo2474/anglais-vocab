@@ -547,7 +547,9 @@
             { en: "right now", font: "en ce moment" },
             { en: "run out of", fr: "manquer de" },
             { en: "garbage can", fr: "poubelle" },
-                         const initialGrammar = [
+                                 ];
+
+const initialGrammar = [
             {
                 title: "Present Simple (Temps Simple)",
                 explanation: "Utilisé pour les habitudes, vérités générales ou faits permanents. Règle clé : On ajoute un '-s' ou '-es' à la 3ème personne du singulier (he, she, it). Pour les négations et questions, on utilise l'auxiliaire 'do/does'.",
@@ -733,16 +735,6 @@
                     // Supprimer les versions par défaut précédentes pour mise à jour,
                     // sans toucher aux règles personnalisées ("Since vs For" et "Used to" restent).
                     const oldGrammarTitles = new Set([
-                        "present perfect",
-                        "present simple (temps simple)",
-                        "past simple (temps simple)",
-                        "present perfect (temps perfect)",
-                        "past perfect (temps perfect)",
-                        "present continuous (temps continuous)",
-                        "past continuous (temps continuous)",
-                        "le gérondif (gerund -ing)",
-                        "les modaux (modal verbs)",
-                        "le modal 'would'",
                         "la voix passive (passive voice)",
                         "conditionnels (type 3 & mixtes)",
                         "propositions relatives (who, which, that, whose)",
