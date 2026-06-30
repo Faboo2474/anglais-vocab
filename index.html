@@ -678,7 +678,10 @@
 
         const currentVocabVersion = 11;
 
-        const req = indexedDB.open("VocabMasterUltimate", 3);
+                const req = indexedDB.open("VocabMasterUltimate", 3);
+        req.onblocked = () => {
+            alert("Mise à jour de la base de données bloquée. Veuillez fermer tous les autres onglets ou fenêtres de cette application pour finaliser la mise à jour.");
+        };
         req.onupgradeneeded = (e) => {
             const d = e.target.result;
             if (!d.objectStoreNames.contains("words")) {
@@ -690,9 +693,17 @@
         };
         req.onsuccess = (e) => { 
             db = e.target.result; 
+            db.onversionchange = () => {
+                db.close();
+                alert("Nouvelle version détectée. Rechargement de la page.");
+                location.reload();
+            };
             seed(); 
         };
-        req.onerror = (e) => console.error("IndexedDB error:", e);
+        req.onerror = (e) => {
+            console.error("IndexedDB error:", e);
+            alert("Erreur critique d'ouverture de base de données : " + e.target.error.message);
+        };
 
         function seed() {
             if (!db) return;
