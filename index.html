@@ -390,6 +390,17 @@
                 <button id="toggle-list-grammar" class="toggle-btn" onclick="switchListTab('grammar')" style="flex: 1; border: none; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Grammaire</button>
             </div>
 
+            <!-- ZONE DE SAUVEGARDE -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button class="btn" style="flex: 1; height: 42px; padding: 0 10px; margin: 0; background: transparent; border: 1px solid var(--primary); color: var(--primary); font-size: 13px; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 5px; box-shadow: none;" onclick="exportBackup()">
+                    📤 EXPORTER SAUVEGARDE
+                </button>
+                <button class="btn" style="flex: 1; height: 42px; padding: 0 10px; margin: 0; background: transparent; border: 1px solid var(--primary); color: var(--primary); font-size: 13px; font-weight: 700; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 5px; box-shadow: none;" onclick="triggerImport()">
+                    📥 IMPORTER SAUVEGARDE
+                </button>
+                <input type="file" id="import-file-input" style="display: none;" accept=".json" onchange="importBackup(event)">
+            </div>
+
             <div id="word-list"></div>
         </div>
  
@@ -545,11 +556,7 @@
             { en: "right now", font: "en ce moment" },
             { en: "run out of", fr: "manquer de" },
             { en: "garbage can", fr: "poubelle" },
-            { en: "waste", fr: "déchet" },
-            { en: "bean", fr: "haricot" }
-        ];
-
-        const initialGrammar = [
+                 const initialGrammar = [
             {
                 title: "Present Simple (Temps Simple)",
                 explanation: "Utilisé pour les habitudes, vérités générales ou faits permanents. Règle clé : On ajoute un '-s' ou '-es' à la 3ème personne du singulier (he, she, it). Pour les négations et questions, on utilise l'auxiliaire 'do/does'.",
@@ -614,10 +621,45 @@
                 title: "Le Modal 'Would'",
                 explanation: "Le modal 'Would' s'emploie principalement pour : 1) Exprimer le conditionnel (hypothèses : 'If + Past, ... would + V'), 2) Exprimer le futur dans le passé (discours indirect : 'will' devient 'would'), 3) Exprimer une habitude passée révolue (équivalent de used to pour des actions répétées).",
                 example: "If I won, I would buy a house. / She said she would come. / We would swim every morning."
+            },
+            {
+                title: "La Voix Passive (Passive Voice)",
+                explanation: "Utilisée pour mettre l'accent sur l'action ou sur l'objet qui la subit plutôt que sur l'auteur. Structure : Be (conjugué au temps voulu) + Participe Passé. L'auteur est introduit par 'by' si nécessaire.",
+                example: "The house was built in 1990. / The key has been found. / He was invited by his boss."
+            },
+            {
+                title: "Conditionnels (Type 3 & Mixtes)",
+                explanation: "Le Type 3 exprime un regret/hypothèse dans le passé (If + Past Perfect, ... would have + Part. Passé). Les mixtes lient un passé imaginaire à un présent imaginaire (If + Past Perfect, ... would + BV).",
+                example: "If you had studied, you would have passed (regret). / If he had won, he would be rich today (mixte)."
+            },
+            {
+                title: "Propositions Relatives (Who, Which, That, Whose)",
+                explanation: "Defining (essentiel, pas de virgules, 'that' possible) vs Non-defining (info sup, virgules obligatoire, pas de 'that'). 'Whose' exprime la possession de l'antécédent.",
+                example: "The man who called left a message (defining). / Paris, which I love, is beautiful (non-defining)."
+            },
+            {
+                title: "Exprimer le regret (Wish / If Only)",
+                explanation: "Regret présent : wish + Past Simple (souhait irréel). Regret passé : wish + Past Perfect. Plainte/volonté de changement immédiat : wish + would + base verbale.",
+                example: "I wish I knew the answer (présent). / I wish I had slept more (passé). / I wish you would stop talking (plainte)."
+            },
+            {
+                title: "Le Discours Rapporté (Reported Speech)",
+                explanation: "Rapporter des paroles au passé décale les temps d'un cran en arrière (Present ➔ Past, Past ➔ Past Perfect, Will ➔ Would). Les pronoms et expressions temporelles s'adaptent aussi (tomorrow ➔ the next day).",
+                example: "Direct: 'I am leaving tomorrow' ➔ Indirect: He said he was leaving the next day."
+            },
+            {
+                title: "L'Inversion de style (Inversion B2+)",
+                explanation: "Structure littéraire ou emphatique. Après un adverbe négatif ou restrictif en début de phrase (never, seldom, rarely, hardly, barely, under no circumstances), on inverse l'auxiliaire et le sujet.",
+                example: "Never have I seen such a beautiful view. / Seldom do they visit us. / Under no circumstances should you open it."
+            },
+            {
+                title: "Déduction Passée (Must/Can't/Might have)",
+                explanation: "Spéculer sur un fait passé. Certitude positive : 'must have + part. passé' (a dû). Certitude négative : 'can't have + part. passé' (n'a pas pu). Probabilité incertaine : 'might/may/could have + part. passé' (a peut-être).",
+                example: "She didn't answer, she must have been busy. / You can't have finished already! / He might have lost his way."
             }
         ];
 
-        const currentVocabVersion = 10;
+        const currentVocabVersion = 11;
 
         const req = indexedDB.open("VocabMasterUltimate", 2);
         req.onupgradeneeded = (e) => {
@@ -721,9 +763,8 @@
                 });
 
                 if (savedVersion !== String(currentVocabVersion)) {
-                    // Supprimer UNIQUEMENT l'ancienne règle Present Perfect par défaut pour éviter le doublon,
-                    // ainsi que les anciennes versions par défaut des règles existantes pour mise à jour.
-                    // "Since vs For" et "Used to" ne sont PAS supprimées.
+                    // Supprimer les versions par défaut précédentes pour mise à jour,
+                    // sans toucher aux règles personnalisées ("Since vs For" et "Used to" restent).
                     const oldGrammarTitles = new Set([
                         "present perfect",
                         "present simple (temps simple)",
@@ -734,7 +775,14 @@
                         "past continuous (temps continuous)",
                         "le gérondif (gerund -ing)",
                         "les modaux (modal verbs)",
-                        "le modal 'would'"
+                        "le modal 'would'",
+                        "la voix passive (passive voice)",
+                        "conditionnels (type 3 & mixtes)",
+                        "propositions relatives (who, which, that, whose)",
+                        "exprimer le regret (wish / if only)",
+                        "le discours rapporté (reported speech)",
+                        "l'inversion de style (inversion b2+)",
+                        "déduction passée (must/can't/might have)"
                     ]);
                     
                     const existingTitles = new Set();
@@ -747,7 +795,7 @@
                         }
                     });
 
-                    // Insérer les nouvelles règles et règles mises à jour
+                    // Insérer les règles qui n'existent pas encore
                     initialGrammar.forEach(g => {
                         if (!existingTitles.has(g.title.toLowerCase())) {
                             grammarStore.add({
@@ -850,6 +898,147 @@
             } catch (e) {
                 console.error("updateDashboard error:", e);
             }
+        }
+
+        function exportBackup() {
+            const transaction = db.transaction(["words", "grammar"], "readonly");
+            const wordsStore = transaction.objectStore("words");
+            const grammarStore = transaction.objectStore("grammar");
+
+            const wordsReq = wordsStore.getAll();
+            const grammarReq = grammarStore.getAll();
+
+            transaction.oncomplete = () => {
+                const data = {
+                    version: 1,
+                    timestamp: Date.now(),
+                    words: wordsReq.result,
+                    grammar: grammarReq.result
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `vocab_master_backup_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+        }
+
+        function triggerImport() {
+            document.getElementById("import-file-input").click();
+        }
+
+        function importBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!data.words || !data.grammar) {
+                        alert("Fichier de sauvegarde invalide.");
+                        return;
+                    }
+
+                    if (!confirm(`Voulez-vous importer ${data.words.length} mots et ${data.grammar.length} règles de grammaire ? Les éléments existants portant le même nom seront mis à jour.`)) {
+                        event.target.value = "";
+                        return;
+                    }
+
+                    const tx = db.transaction(["words", "grammar"], "readwrite");
+                    const wordsStore = tx.objectStore("words");
+                    const grammarStore = tx.objectStore("grammar");
+
+                    const existingWordsReq = wordsStore.getAll();
+                    const existingGrammarReq = grammarStore.getAll();
+
+                    tx.oncomplete = () => {
+                        alert("Sauvegarde importée avec succès !");
+                        event.target.value = "";
+                        updateDashboard();
+                        if (activeListTab === "words") {
+                            loadList("words");
+                        } else {
+                            loadList("grammar");
+                        }
+                    };
+
+                    existingWordsReq.onsuccess = () => {
+                        const existingWords = existingWordsReq.result;
+                        const existingWordsMap = new Map(existingWords.map(w => [w.en.toLowerCase(), w]));
+
+                        data.words.forEach(importedWord => {
+                            const key = importedWord.en.toLowerCase();
+                            if (existingWordsMap.has(key)) {
+                                const existing = existingWordsMap.get(key);
+                                const updated = {
+                                    ...existing,
+                                    fr: importedWord.fr,
+                                    repetition: importedWord.repetition !== undefined ? importedWord.repetition : existing.repetition,
+                                    interval: importedWord.interval !== undefined ? importedWord.interval : existing.interval,
+                                    efactor: importedWord.efactor !== undefined ? importedWord.efactor : existing.efactor,
+                                    direction: importedWord.direction || existing.direction,
+                                    nextReview: importedWord.nextReview !== undefined ? importedWord.nextReview : existing.nextReview
+                                };
+                                wordsStore.put(updated);
+                            } else {
+                                const newWord = {
+                                    en: importedWord.en,
+                                    fr: importedWord.fr,
+                                    repetition: importedWord.repetition !== undefined ? importedWord.repetition : 0,
+                                    interval: importedWord.interval !== undefined ? importedWord.interval : 0,
+                                    efactor: importedWord.efactor !== undefined ? importedWord.efactor : 2.5,
+                                    direction: importedWord.direction || "EN_FR",
+                                    nextReview: importedWord.nextReview !== undefined ? importedWord.nextReview : Date.now()
+                                };
+                                wordsStore.add(newWord);
+                            }
+                        });
+                    };
+
+                    existingGrammarReq.onsuccess = () => {
+                        const existingGrammar = existingGrammarReq.result;
+                        const existingGrammarMap = new Map(existingGrammar.map(g => [g.title.toLowerCase(), g]));
+
+                        data.grammar.forEach(importedGrammar => {
+                            const key = importedGrammar.title.toLowerCase();
+                            if (existingGrammarMap.has(key)) {
+                                const existing = existingGrammarMap.get(key);
+                                const updated = {
+                                    ...existing,
+                                    explanation: importedGrammar.explanation,
+                                    example: importedGrammar.example,
+                                    repetition: importedGrammar.repetition !== undefined ? importedGrammar.repetition : existing.repetition,
+                                    interval: importedGrammar.interval !== undefined ? importedGrammar.interval : existing.interval,
+                                    efactor: importedGrammar.efactor !== undefined ? importedGrammar.efactor : existing.efactor,
+                                    nextReview: importedGrammar.nextReview !== undefined ? importedGrammar.nextReview : existing.nextReview
+                                };
+                                grammarStore.put(updated);
+                            } else {
+                                const newGrammar = {
+                                    title: importedGrammar.title,
+                                    explanation: importedGrammar.explanation,
+                                    example: importedGrammar.example,
+                                    repetition: importedGrammar.repetition !== undefined ? importedGrammar.repetition : 0,
+                                    interval: importedGrammar.interval !== undefined ? importedGrammar.interval : 0,
+                                    efactor: importedGrammar.efactor !== undefined ? importedGrammar.efactor : 2.5,
+                                    nextReview: importedGrammar.nextReview !== undefined ? importedGrammar.nextReview : Date.now()
+                                };
+                                grammarStore.add(newGrammar);
+                            }
+                        });
+                    };
+
+                } catch (err) {
+                    alert("Erreur lors de la lecture du fichier : " + err.message);
+                    event.target.value = "";
+                }
+            };
+            reader.readAsText(file);
         }
 
         function switchListTab(tab) {
