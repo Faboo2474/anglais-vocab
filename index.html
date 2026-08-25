@@ -818,37 +818,59 @@
         ];
 
         const currentVocabVersion = 16;
+        let db;
+        let dbPromise;
 
-        const req = indexedDB.open("VocabMasterUltimate", 3);
-        req.onblocked = () => {
-            alert("Mise à jour de la base de données bloquée. Veuillez fermer tous les autres onglets ou fenêtres de cette application pour finaliser la mise à jour.");
-        };
-        req.onupgradeneeded = (e) => {
-            const d = e.target.result;
-            if (!d.objectStoreNames.contains("words")) {
-                d.createObjectStore("words", { keyPath: "id", autoIncrement: true });
-            }
-            if (!d.objectStoreNames.contains("grammar")) {
-                d.createObjectStore("grammar", { keyPath: "id", autoIncrement: true });
-            }
-        };
-        req.onsuccess = (e) => { 
-            db = e.target.result; 
-            db.onversionchange = () => {
-                db.close();
-                alert("Nouvelle version détectée. Rechargement de la page.");
-                location.reload();
-            };
-            seed(); 
-        };
-        req.onerror = (e) => {
-            console.error("IndexedDB error:", e);
-            alert("Erreur critique d'ouverture de base de données : " + e.target.error.message);
-        };
+        function initDB() {
+            if (db) return Promise.resolve(db);
+            if (dbPromise) return dbPromise;
+
+            dbPromise = new Promise((resolve, reject) => {
+                const req = indexedDB.open("VocabMasterUltimate", 3);
+                
+                req.onblocked = () => {
+                    console.warn("IndexedDB upgrade blocked.");
+                    alert("Mise à jour de la base de données bloquée. Veuillez fermer les autres onglets de cette application.");
+                };
+
+                req.onupgradeneeded = (e) => {
+                    const d = e.target.result;
+                    if (!d.objectStoreNames.contains("words")) {
+                        d.createObjectStore("words", { keyPath: "id", autoIncrement: true });
+                    }
+                    if (!d.objectStoreNames.contains("grammar")) {
+                        d.createObjectStore("grammar", { keyPath: "id", autoIncrement: true });
+                    }
+                };
+
+                req.onsuccess = async (e) => { 
+                    db = e.target.result; 
+                    db.onversionchange = () => {
+                        db.close();
+                        db = null;
+                        alert("Nouvelle version détectée. Rechargement de la page.");
+                        location.reload();
+                    };
+                    try {
+                        await seed();
+                    } catch (err) {
+                        console.error("Seed error:", err);
+                    }
+                    resolve(db); 
+                };
+
+                req.onerror = (e) => {
+                    console.error("IndexedDB error:", e);
+                    alert("Erreur d'accès à la base de données : " + e.target.error.message);
+                    reject(e);
+                };
+            });
+
+            return dbPromise;
+        }
 
         async function seed() {
             if (!db) return;
-            const savedVersion = localStorage.getItem('vocabVersion');
 
             try {
                 const existingWords = await new Promise((resolve, reject) => {
@@ -865,117 +887,110 @@
                     reqStore.onerror = (e) => reject(e);
                 });
 
-                const needWordSync = (savedVersion !== String(currentVocabVersion)) || (existingWords.length === 0);
-                const needGrammarSync = (savedVersion !== String(currentVocabVersion)) || (existingGrammar.length === 0);
+                const oldVocabEn = new Set([
+                    "postpone", "implement", "else", "other ways", "get used to", "be used to", 
+                    "i am getting used to", "foot traffic", "defer", "diter", "differ", "deflect", 
+                    "share price", "so far", "a survey", "ensure", "the board of director", 
+                    "currently", "quarter", "upcoming", "by the time", "regarding", "complaint", 
+                    "roughly", "strikes", "wounded", "ceasefire", "take over", "conveyance", 
+                    "convinience", "unforeseen", "barring", "assuming", "stated", "compliant", 
+                    "revamp", "relapse", "accrued", "adhered", "accosted", "comply", "curtail", 
+                    "commitment", "prompted", "spread", "cross boarders", "remote", "carry out", "to carry"
+                ]);
 
-                if (needWordSync) {
-                    const oldVocabEn = new Set([
-                        "postpone", "implement", "else", "other ways", "get used to", "be used to", 
-                        "i am getting used to", "foot traffic", "defer", "diter", "differ", "deflect", 
-                        "share price", "so far", "a survey", "ensure", "the board of director", 
-                        "currently", "quarter", "upcoming", "by the time", "regarding", "complaint", 
-                        "roughly", "strikes", "wounded", "ceasefire", "take over", "conveyance", 
-                        "convinience", "unforeseen", "barring", "assuming", "stated", "compliant", 
-                        "revamp", "relapse", "accrued", "adhered", "accosted", "comply", "curtail", 
-                        "commitment", "prompted", "spread", "cross boarders", "remote", "carry out", "to carry"
-                    ]);
+                const newVocabEnMap = new Map(initialVocab.map(v => [v.en.toLowerCase(), v]));
+                const existingEnSet = new Set();
 
-                    const newVocabEnMap = new Map(initialVocab.map(v => [v.en.toLowerCase(), v]));
-                    const existingEnSet = new Set();
+                const wTx = db.transaction("words", "readwrite");
+                const wStore = wTx.objectStore("words");
 
-                    const wTx = db.transaction("words", "readwrite");
-                    const wStore = wTx.objectStore("words");
+                existingWords.forEach(w => {
+                    const enLower = (w.en || '').toLowerCase();
+                    existingEnSet.add(enLower);
 
-                    existingWords.forEach(w => {
-                        const enLower = (w.en || '').toLowerCase();
-                        existingEnSet.add(enLower);
+                    if (w.repetition === 0 && w.nextReview > Date.now()) {
+                        w.nextReview = Date.now();
+                        wStore.put(w);
+                    }
 
-                        if (w.repetition === 0 && w.nextReview > Date.now()) {
-                            w.nextReview = Date.now();
-                            wStore.put(w);
+                    if (newVocabEnMap.has(enLower)) {
+                        const newWord = newVocabEnMap.get(enLower);
+                        let updated = false;
+                        if (w.fr !== newWord.fr) {
+                            w.fr = newWord.fr;
+                            updated = true;
                         }
-
-                        if (newVocabEnMap.has(enLower)) {
-                            const newWord = newVocabEnMap.get(enLower);
-                            let updated = false;
-                            if (w.fr !== newWord.fr) {
-                                w.fr = newWord.fr;
-                                updated = true;
-                            }
-                            if (newWord.category && w.category !== newWord.category) {
-                                w.category = newWord.category;
-                                updated = true;
-                            }
-                            if (updated) wStore.put(w);
-                        } else if (oldVocabEn.has(enLower)) {
-                            wStore.delete(w.id);
+                        if (newWord.category && w.category !== newWord.category) {
+                            w.category = newWord.category;
+                            updated = true;
                         }
-                    });
+                        if (updated) wStore.put(w);
+                    } else if (oldVocabEn.has(enLower)) {
+                        wStore.delete(w.id);
+                    }
+                });
 
-                    initialVocab.forEach(v => {
-                        if (!existingEnSet.has(v.en.toLowerCase())) {
-                            wStore.add({ 
-                                ...v, 
-                                repetition: 0, 
-                                interval: 0, 
-                                efactor: 2.5, 
-                                direction: 'EN_FR', 
-                                nextReview: Date.now() 
-                            });
-                        }
-                    });
-                }
+                initialVocab.forEach(v => {
+                    if (!existingEnSet.has(v.en.toLowerCase())) {
+                        wStore.add({ 
+                            ...v, 
+                            repetition: 0, 
+                            interval: 0, 
+                            efactor: 2.5, 
+                            direction: 'EN_FR', 
+                            nextReview: Date.now() 
+                        });
+                    }
+                });
 
-                if (needGrammarSync) {
-                    const oldGrammarTitles = new Set([
-                        "la voix passive (passive voice)",
-                        "conditionnels (type 3 & mixtes)",
-                        "propositions relatives (who, which, that, whose)",
-                        "exprimer le regret (wish / if only)",
-                        "le discours rapporté (reported speech)",
-                        "l'inversion de style (inversion b2+)",
-                        "déduction passée (must/can't/might have)"
-                    ]);
+                const oldGrammarTitles = new Set([
+                    "la voix passive (passive voice)",
+                    "conditionnels (type 3 & mixtes)",
+                    "propositions relatives (who, which, that, whose)",
+                    "exprimer le regret (wish / if only)",
+                    "le discours rapporté (reported speech)",
+                    "l'inversion de style (inversion b2+)",
+                    "déduction passée (must/can't/might have)"
+                ]);
 
-                    const existingTitlesSet = new Set();
-                    const gTx = db.transaction("grammar", "readwrite");
-                    const gStore = gTx.objectStore("grammar");
+                const existingTitlesSet = new Set();
+                const gTx = db.transaction("grammar", "readwrite");
+                const gStore = gTx.objectStore("grammar");
 
-                    existingGrammar.forEach(g => {
-                        const titleLower = (g.title || '').toLowerCase();
-                        if (oldGrammarTitles.has(titleLower)) {
-                            gStore.delete(g.id);
-                        } else {
-                            existingTitlesSet.add(titleLower);
-                        }
-                        if (g.repetition === 0 && g.nextReview > Date.now()) {
-                            g.nextReview = Date.now();
-                            gStore.put(g);
-                        }
-                    });
+                existingGrammar.forEach(g => {
+                    const titleLower = (g.title || '').toLowerCase();
+                    if (oldGrammarTitles.has(titleLower)) {
+                        gStore.delete(g.id);
+                    } else {
+                        existingTitlesSet.add(titleLower);
+                    }
+                    if (g.repetition === 0 && g.nextReview > Date.now()) {
+                        g.nextReview = Date.now();
+                        gStore.put(g);
+                    }
+                });
 
-                    initialGrammar.forEach(g => {
-                        if (!existingTitlesSet.has(g.title.toLowerCase())) {
-                            gStore.add({
-                                ...g,
-                                repetition: 0,
-                                interval: 0,
-                                efactor: 2.5,
-                                nextReview: Date.now()
-                            });
-                        }
-                    });
-                }
+                initialGrammar.forEach(g => {
+                    if (!existingTitlesSet.has(g.title.toLowerCase())) {
+                        gStore.add({
+                            ...g,
+                            repetition: 0,
+                            interval: 0,
+                            efactor: 2.5,
+                            nextReview: Date.now()
+                        });
+                    }
+                });
 
                 localStorage.setItem('vocabVersion', currentVocabVersion);
-                updateDashboard();
+                await updateDashboard();
             } catch (err) {
                 console.error("seed error:", err);
-                updateDashboard();
+                await updateDashboard();
             }
         }
 
-        function switchView(v) {
+        async function switchView(v) {
             try {
                 document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
                 const targetView = document.getElementById('view-' + v);
@@ -990,28 +1005,30 @@
                 const tab = document.getElementById('tab-' + v);
                 if (tab) tab.classList.add('active');
                 
-                if (v === 'list') switchListTab(activeListTab);
-                if (v === 'study') switchStudyTab(activeStudyTab);
-                if (v === 'dashboard') updateDashboard();
+                if (v === 'list') await switchListTab(activeListTab);
+                if (v === 'study') await switchStudyTab(activeStudyTab);
+                if (v === 'dashboard') await updateDashboard();
             } catch (e) {
                 console.error("switchView error:", e);
             }
         }
 
         async function updateDashboard() {
+            if (!db) await initDB();
             if (!db) return;
+
             try {
                 const allWords = await new Promise((resolve, reject) => {
                     const tx = db.transaction("words", "readonly");
                     const req = tx.objectStore("words").getAll();
-                    req.onsuccess = (e) => resolve(e.target.result);
+                    req.onsuccess = (e) => resolve(e.target.result || []);
                     req.onerror = (e) => reject(e);
                 });
 
                 const allGrammar = await new Promise((resolve, reject) => {
                     const tx = db.transaction("grammar", "readonly");
                     const req = tx.objectStore("grammar").getAll();
-                    req.onsuccess = (e) => resolve(e.target.result);
+                    req.onsuccess = (e) => resolve(e.target.result || []);
                     req.onerror = (e) => reject(e);
                 });
 
@@ -1053,7 +1070,7 @@
             }
         }
 
-        function switchListTab(tab) {
+        async function switchListTab(tab) {
             activeListTab = tab;
             const wordsBtn = document.getElementById('toggle-list-words');
             const techBtn = document.getElementById('toggle-list-tech');
@@ -1078,10 +1095,11 @@
                 if (grammarBtn) { grammarBtn.style.background = 'white'; grammarBtn.style.color = 'var(--primary)'; grammarBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)'; }
                 if (listTitle) listTitle.innerText = "Grammaire";
             }
-            renderList();
+            await renderList();
         }
 
-        function renderList() {
+        async function renderList() {
+            if (!db) await initDB();
             if (!db) return;
             const tab = activeListTab;
             const storeName = (tab === 'grammar') ? 'grammar' : 'words';
@@ -1089,7 +1107,7 @@
             tx.objectStore(storeName).getAll().onsuccess = (e) => {
                 const listEl = document.getElementById('word-list');
                 if (!listEl) return;
-                let items = e.target.result;
+                let items = e.target.result || [];
                 
                 if (storeName === 'words') {
                     if (tab === 'tech') {
@@ -1110,7 +1128,7 @@
             };
         }
 
-        function switchStudyTab(tab) {
+        async function switchStudyTab(tab) {
             activeStudyTab = tab;
             const wordsBtn = document.getElementById('toggle-study-words');
             const techBtn = document.getElementById('toggle-study-tech');
@@ -1131,17 +1149,18 @@
             } else {
                 if (grammarBtn) { grammarBtn.style.background = 'white'; grammarBtn.style.color = 'var(--primary)'; grammarBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)'; }
             }
-            renderStudyList();
+            await renderStudyList();
         }
 
-        function renderStudyList() {
+        async function renderStudyList() {
+            if (!db) await initDB();
             if (!db) return;
             const tab = activeStudyTab;
             const storeName = (tab === 'grammar') ? 'grammar' : 'words';
             db.transaction(storeName).objectStore(storeName).getAll().onsuccess = (e) => {
                 const listEl = document.getElementById('study-list');
                 if (!listEl) return;
-                let items = e.target.result;
+                let items = e.target.result || [];
                 
                 if (storeName === 'words') {
                     if (tab === 'tech') {
@@ -1267,13 +1286,17 @@
         }
 
         async function startSession(type = 'words') {
-            if (!db) return;
+            if (!db) await initDB();
+            if (!db) {
+                alert("Impossible d'accéder à la base de données. Veuillez rafraîchir la page.");
+                return;
+            }
             sessionType = type;
             const storeName = (type === 'grammar') ? 'grammar' : 'words';
             
             const rawItems = await new Promise(r => {
                 const tx = db.transaction(storeName, "readonly");
-                tx.objectStore(storeName).getAll().onsuccess = (e) => r(e.target.result);
+                tx.objectStore(storeName).getAll().onsuccess = (e) => r(e.target.result || []);
             });
 
             let items = rawItems;
