@@ -817,9 +817,9 @@
             }
         ];
 
-        const currentVocabVersion = 15;
+        const currentVocabVersion = 16;
 
-                const req = indexedDB.open("VocabMasterUltimate", 3);
+        const req = indexedDB.open("VocabMasterUltimate", 3);
         req.onblocked = () => {
             alert("Mise à jour de la base de données bloquée. Veuillez fermer tous les autres onglets ou fenêtres de cette application pour finaliser la mise à jour.");
         };
@@ -846,24 +846,29 @@
             alert("Erreur critique d'ouverture de base de données : " + e.target.error.message);
         };
 
-        function seed() {
+        async function seed() {
             if (!db) return;
             const savedVersion = localStorage.getItem('vocabVersion');
-            const tx = db.transaction(["words", "grammar"], "readwrite");
-            const store = tx.objectStore("words");
-            const grammarStore = tx.objectStore("grammar");
-            
-            store.getAll().onsuccess = (ev) => {
-                const existing = ev.target.result;
-                
-                existing.forEach(w => {
-                    if (w.repetition === 0 && w.nextReview > Date.now()) {
-                        w.nextReview = Date.now();
-                        store.put(w);
-                    }
+
+            try {
+                const existingWords = await new Promise((resolve, reject) => {
+                    const tx = db.transaction("words", "readonly");
+                    const reqStore = tx.objectStore("words").getAll();
+                    reqStore.onsuccess = (e) => resolve(e.target.result || []);
+                    reqStore.onerror = (e) => reject(e);
                 });
-                
-                if (savedVersion !== String(currentVocabVersion)) {
+
+                const existingGrammar = await new Promise((resolve, reject) => {
+                    const tx = db.transaction("grammar", "readonly");
+                    const reqStore = tx.objectStore("grammar").getAll();
+                    reqStore.onsuccess = (e) => resolve(e.target.result || []);
+                    reqStore.onerror = (e) => reject(e);
+                });
+
+                const needWordSync = (savedVersion !== String(currentVocabVersion)) || (existingWords.length === 0);
+                const needGrammarSync = (savedVersion !== String(currentVocabVersion)) || (existingGrammar.length === 0);
+
+                if (needWordSync) {
                     const oldVocabEn = new Set([
                         "postpone", "implement", "else", "other ways", "get used to", "be used to", 
                         "i am getting used to", "foot traffic", "defer", "diter", "differ", "deflect", 
@@ -874,11 +879,22 @@
                         "revamp", "relapse", "accrued", "adhered", "accosted", "comply", "curtail", 
                         "commitment", "prompted", "spread", "cross boarders", "remote", "carry out", "to carry"
                     ]);
-                    
+
                     const newVocabEnMap = new Map(initialVocab.map(v => [v.en.toLowerCase(), v]));
-                    
-                    existing.forEach(w => {
-                        const enLower = w.en.toLowerCase();
+                    const existingEnSet = new Set();
+
+                    const wTx = db.transaction("words", "readwrite");
+                    const wStore = wTx.objectStore("words");
+
+                    existingWords.forEach(w => {
+                        const enLower = (w.en || '').toLowerCase();
+                        existingEnSet.add(enLower);
+
+                        if (w.repetition === 0 && w.nextReview > Date.now()) {
+                            w.nextReview = Date.now();
+                            wStore.put(w);
+                        }
+
                         if (newVocabEnMap.has(enLower)) {
                             const newWord = newVocabEnMap.get(enLower);
                             let updated = false;
@@ -890,16 +906,15 @@
                                 w.category = newWord.category;
                                 updated = true;
                             }
-                            if (updated) store.put(w);
+                            if (updated) wStore.put(w);
                         } else if (oldVocabEn.has(enLower)) {
-                            store.delete(w.id);
+                            wStore.delete(w.id);
                         }
                     });
-                    
-                    const existingEn = new Set(existing.map(w => w.en.toLowerCase()));
+
                     initialVocab.forEach(v => {
-                        if (!existingEn.has(v.en.toLowerCase())) {
-                            store.add({ 
+                        if (!existingEnSet.has(v.en.toLowerCase())) {
+                            wStore.add({ 
                                 ...v, 
                                 repetition: 0, 
                                 interval: 0, 
@@ -909,35 +924,9 @@
                             });
                         }
                     });
-                    
-                    localStorage.setItem('vocabVersion', currentVocabVersion);
-                } else {
-                    if (existing.length === 0) {
-                        initialVocab.forEach(v => {
-                            store.add({ 
-                                ...v, 
-                                repetition: 0, 
-                                interval: 0, 
-                                efactor: 2.5, 
-                                direction: 'EN_FR', 
-                                nextReview: Date.now() 
-                            });
-                        });
-                    }
                 }
-            };
 
-            grammarStore.getAll().onsuccess = (ev) => {
-                const existingGrammar = ev.target.result;
-                
-                existingGrammar.forEach(g => {
-                    if (g.repetition === 0 && g.nextReview > Date.now()) {
-                        g.nextReview = Date.now();
-                        grammarStore.put(g);
-                    }
-                });
-
-                if (savedVersion !== String(currentVocabVersion)) {
+                if (needGrammarSync) {
                     const oldGrammarTitles = new Set([
                         "la voix passive (passive voice)",
                         "conditionnels (type 3 & mixtes)",
@@ -947,20 +936,27 @@
                         "l'inversion de style (inversion b2+)",
                         "déduction passée (must/can't/might have)"
                     ]);
-                    
-                    const existingTitles = new Set();
+
+                    const existingTitlesSet = new Set();
+                    const gTx = db.transaction("grammar", "readwrite");
+                    const gStore = gTx.objectStore("grammar");
+
                     existingGrammar.forEach(g => {
-                        const titleLower = g.title.toLowerCase();
+                        const titleLower = (g.title || '').toLowerCase();
                         if (oldGrammarTitles.has(titleLower)) {
-                            grammarStore.delete(g.id);
+                            gStore.delete(g.id);
                         } else {
-                            existingTitles.add(titleLower);
+                            existingTitlesSet.add(titleLower);
+                        }
+                        if (g.repetition === 0 && g.nextReview > Date.now()) {
+                            g.nextReview = Date.now();
+                            gStore.put(g);
                         }
                     });
 
                     initialGrammar.forEach(g => {
-                        if (!existingTitles.has(g.title.toLowerCase())) {
-                            grammarStore.add({
+                        if (!existingTitlesSet.has(g.title.toLowerCase())) {
+                            gStore.add({
                                 ...g,
                                 repetition: 0,
                                 interval: 0,
@@ -969,22 +965,14 @@
                             });
                         }
                     });
-                } else {
-                    if (existingGrammar.length === 0) {
-                        initialGrammar.forEach(g => {
-                            grammarStore.add({
-                                ...g,
-                                repetition: 0,
-                                interval: 0,
-                                efactor: 2.5,
-                                nextReview: Date.now()
-                            });
-                        });
-                    }
                 }
-            };
-            
-            tx.oncomplete = () => updateDashboard();
+
+                localStorage.setItem('vocabVersion', currentVocabVersion);
+                updateDashboard();
+            } catch (err) {
+                console.error("seed error:", err);
+                updateDashboard();
+            }
         }
 
         function switchView(v) {
