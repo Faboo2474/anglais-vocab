@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vocab-master-v23';
+const CACHE_NAME = 'vocab-master-v24';
 const ASSETS = [
   'index.html',
   'manifest.json',

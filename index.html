@@ -901,46 +901,51 @@
                 const newVocabEnMap = new Map(initialVocab.map(v => [v.en.toLowerCase(), v]));
                 const existingEnSet = new Set();
 
-                const wTx = db.transaction("words", "readwrite");
-                const wStore = wTx.objectStore("words");
+                await new Promise((resolve, reject) => {
+                    const wTx = db.transaction("words", "readwrite");
+                    const wStore = wTx.objectStore("words");
 
-                existingWords.forEach(w => {
-                    const enLower = (w.en || '').toLowerCase();
-                    existingEnSet.add(enLower);
+                    existingWords.forEach(w => {
+                        const enLower = (w.en || '').toLowerCase();
+                        existingEnSet.add(enLower);
 
-                    if (w.repetition === 0 && w.nextReview > Date.now()) {
-                        w.nextReview = Date.now();
-                        wStore.put(w);
-                    }
-
-                    if (newVocabEnMap.has(enLower)) {
-                        const newWord = newVocabEnMap.get(enLower);
-                        let updated = false;
-                        if (w.fr !== newWord.fr) {
-                            w.fr = newWord.fr;
-                            updated = true;
+                        if (w.repetition === 0 && w.nextReview > Date.now()) {
+                            w.nextReview = Date.now();
+                            wStore.put(w);
                         }
-                        if (newWord.category && w.category !== newWord.category) {
-                            w.category = newWord.category;
-                            updated = true;
-                        }
-                        if (updated) wStore.put(w);
-                    } else if (oldVocabEn.has(enLower)) {
-                        wStore.delete(w.id);
-                    }
-                });
 
-                initialVocab.forEach(v => {
-                    if (!existingEnSet.has(v.en.toLowerCase())) {
-                        wStore.add({ 
-                            ...v, 
-                            repetition: 0, 
-                            interval: 0, 
-                            efactor: 2.5, 
-                            direction: 'EN_FR', 
-                            nextReview: Date.now() 
-                        });
-                    }
+                        if (newVocabEnMap.has(enLower)) {
+                            const newWord = newVocabEnMap.get(enLower);
+                            let updated = false;
+                            if (w.fr !== newWord.fr) {
+                                w.fr = newWord.fr;
+                                updated = true;
+                            }
+                            if (newWord.category && w.category !== newWord.category) {
+                                w.category = newWord.category;
+                                updated = true;
+                            }
+                            if (updated) wStore.put(w);
+                        } else if (oldVocabEn.has(enLower)) {
+                            wStore.delete(w.id);
+                        }
+                    });
+
+                    initialVocab.forEach(v => {
+                        if (!existingEnSet.has(v.en.toLowerCase())) {
+                            wStore.add({ 
+                                ...v, 
+                                repetition: 0, 
+                                interval: 0, 
+                                efactor: 2.5, 
+                                direction: 'EN_FR', 
+                                nextReview: Date.now() 
+                            });
+                        }
+                    });
+
+                    wTx.oncomplete = () => resolve();
+                    wTx.onerror = (e) => reject(e);
                 });
 
                 const oldGrammarTitles = new Set([
@@ -954,32 +959,38 @@
                 ]);
 
                 const existingTitlesSet = new Set();
-                const gTx = db.transaction("grammar", "readwrite");
-                const gStore = gTx.objectStore("grammar");
+                
+                await new Promise((resolve, reject) => {
+                    const gTx = db.transaction("grammar", "readwrite");
+                    const gStore = gTx.objectStore("grammar");
 
-                existingGrammar.forEach(g => {
-                    const titleLower = (g.title || '').toLowerCase();
-                    if (oldGrammarTitles.has(titleLower)) {
-                        gStore.delete(g.id);
-                    } else {
-                        existingTitlesSet.add(titleLower);
-                    }
-                    if (g.repetition === 0 && g.nextReview > Date.now()) {
-                        g.nextReview = Date.now();
-                        gStore.put(g);
-                    }
-                });
+                    existingGrammar.forEach(g => {
+                        const titleLower = (g.title || '').toLowerCase();
+                        if (oldGrammarTitles.has(titleLower)) {
+                            gStore.delete(g.id);
+                        } else {
+                            existingTitlesSet.add(titleLower);
+                        }
+                        if (g.repetition === 0 && g.nextReview > Date.now()) {
+                            g.nextReview = Date.now();
+                            gStore.put(g);
+                        }
+                    });
 
-                initialGrammar.forEach(g => {
-                    if (!existingTitlesSet.has(g.title.toLowerCase())) {
-                        gStore.add({
-                            ...g,
-                            repetition: 0,
-                            interval: 0,
-                            efactor: 2.5,
-                            nextReview: Date.now()
-                        });
-                    }
+                    initialGrammar.forEach(g => {
+                        if (!existingTitlesSet.has(g.title.toLowerCase())) {
+                            gStore.add({
+                                ...g,
+                                repetition: 0,
+                                interval: 0,
+                                efactor: 2.5,
+                                nextReview: Date.now()
+                            });
+                        }
+                    });
+
+                    gTx.oncomplete = () => resolve();
+                    gTx.onerror = (e) => reject(e);
                 });
 
                 localStorage.setItem('vocabVersion', currentVocabVersion);
@@ -1478,8 +1489,19 @@
             };
         }
 
-        window.onload = () => {
-            setTimeout(() => switchView('dashboard'), 100);
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                reg.update();
+            }).catch(e => console.log('SW reg error:', e));
+        }
+
+        window.onload = async () => {
+            try {
+                await initDB();
+            } catch (e) {
+                console.error("Initialization error:", e);
+            }
+            switchView('dashboard');
         };
     </script>
 
