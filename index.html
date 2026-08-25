@@ -289,9 +289,9 @@
                 <p style="margin-top:5px; font-size:14px; font-weight: 500; color: var(--text-muted);">Votre assistant de révision quotidien</p>
             </div>
             
-            <!-- SECTION VOCABULAIRE -->
+            <!-- SECTION VOCABULAIRE GÉNÉRAL -->
             <div style="margin-top: 15px;">
-                <h3 style="font-size: 14px; font-weight: 800; color: var(--text); border-bottom: 2px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">Vocabulaire</h3>
+                <h3 style="font-size: 14px; font-weight: 800; color: var(--text); border-bottom: 2px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">Vocabulaire Général</h3>
                 <div class="stats-grid" style="margin: 10px 0;">
                     <div class="stat-card">
                         <div id="stat-due-today" class="stat-val">0</div>
@@ -306,7 +306,27 @@
                         <div style="font-size:10px; font-weight: 700; color:var(--text-muted)">30 JOURS</div>
                     </div>
                 </div>
-                <button class="btn" style="height: 60px; margin-top: 5px; margin-bottom: 15px;" onclick="startSession('words')">RÉVISER VOCABULAIRE</button>
+                <button class="btn" style="height: 60px; margin-top: 5px; margin-bottom: 15px;" onclick="startSession('words')">RÉVISER VOCABULAIRE GÉNÉRAL</button>
+            </div>
+
+            <!-- SECTION VOCABULAIRE TECHNIQUE -->
+            <div style="margin-top: 15px;">
+                <h3 style="font-size: 14px; font-weight: 800; color: #0284c7; border-bottom: 2px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">Vocabulaire Technique ⚙️</h3>
+                <div class="stats-grid" style="margin: 10px 0;">
+                    <div class="stat-card">
+                        <div id="stat-tech-due-today" class="stat-val" style="color: #0284c7;">0</div>
+                        <div style="font-size:10px; font-weight: 700; color:var(--text-muted)">AUJOURD'HUI</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="stat-tech-due-week" class="stat-val" style="color: #0284c7;">0</div>
+                        <div style="font-size:10px; font-weight: 700; color:var(--text-muted)">7 JOURS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="stat-tech-due-month" class="stat-val" style="color: #0284c7;">0</div>
+                        <div style="font-size:10px; font-weight: 700; color:var(--text-muted)">30 JOURS</div>
+                    </div>
+                </div>
+                <button class="btn" style="height: 60px; margin-top: 5px; margin-bottom: 15px; background: linear-gradient(135deg, #0284c7, #38bdf8);" onclick="startSession('tech')">RÉVISER VOCAB. TECHNIQUE</button>
             </div>
 
             <!-- SECTION GRAMMAIRE -->
@@ -368,9 +388,10 @@
             <h1 style="font-size:1.5rem; margin-bottom:15px;">Révision</h1>
             
             <!-- TOGGLE TABS FOR STUDY -->
-            <div class="toggle-bar" style="display: flex; gap: 10px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 12px;">
-                <button id="toggle-study-words" class="toggle-btn active" onclick="switchStudyTab('words')" style="flex: 1; border: none; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer; background: white; color: var(--primary); transition: all 0.2s;">Mots</button>
-                <button id="toggle-study-grammar" class="toggle-btn" onclick="switchStudyTab('grammar')" style="flex: 1; border: none; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Grammaire</button>
+            <div class="toggle-bar" style="display: flex; gap: 6px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 12px;">
+                <button id="toggle-study-words" class="toggle-btn active" onclick="switchStudyTab('words')" style="flex: 1; border: none; padding: 8px 4px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; background: white; color: var(--primary); transition: all 0.2s;">Général</button>
+                <button id="toggle-study-tech" class="toggle-btn" onclick="switchStudyTab('tech')" style="flex: 1; border: none; padding: 8px 4px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Technique</button>
+                <button id="toggle-study-grammar" class="toggle-btn" onclick="switchStudyTab('grammar')" style="flex: 1; border: none; padding: 8px 4px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Grammaire</button>
             </div>
 
             <div id="study-list" class="study-grid"></div>
@@ -379,15 +400,16 @@
         <!-- LIST -->
         <div id="view-list" class="view">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h1 style="font-size:1.5rem" id="list-title">Mots</h1>
+                <h1 style="font-size:1.5rem" id="list-title">Mots Généraux</h1>
                 <button class="btn" style="width:auto; padding:8px 15px; margin:0;"
                     onclick="showEditForm(null)">+ AJOUTER</button>
             </div>
             
             <!-- TOGGLE TABS FOR LIST -->
-            <div class="toggle-bar" style="display: flex; gap: 10px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 12px;">
-                <button id="toggle-list-words" class="toggle-btn active" onclick="switchListTab('words')" style="flex: 1; border: none; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer; background: white; color: var(--primary); transition: all 0.2s;">Mots</button>
-                <button id="toggle-list-grammar" class="toggle-btn" onclick="switchListTab('grammar')" style="flex: 1; border: none; padding: 8px; border-radius: 8px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Grammaire</button>
+            <div class="toggle-bar" style="display: flex; gap: 6px; margin-bottom: 15px; background: #e2e8f0; padding: 4px; border-radius: 12px;">
+                <button id="toggle-list-words" class="toggle-btn active" onclick="switchListTab('words')" style="flex: 1; border: none; padding: 8px 4px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; background: white; color: var(--primary); transition: all 0.2s;">Général</button>
+                <button id="toggle-list-tech" class="toggle-btn" onclick="switchListTab('tech')" style="flex: 1; border: none; padding: 8px 4px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Technique</button>
+                <button id="toggle-list-grammar" class="toggle-btn" onclick="switchListTab('grammar')" style="flex: 1; border: none; padding: 8px 4px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Grammaire</button>
             </div>
 
 
@@ -545,68 +567,189 @@
             { en: "look into", fr: "investigate" },
             { en: "right away", fr: "tout de suite" },
             { en: "garbage can", fr: "poubelle" },
-            { en: "To improve", fr: "améliorer" },
-            { en: "To analyze", fr: "analyser" },
-            { en: "To supply", fr: "approvisionner" },
-            { en: "To assemble", fr: "assembler" },
-            { en: "To increase", fr: "augmenter" },
-            { en: "To automate", fr: "automatiser" },
-            { en: "To certify", fr: "certifier" },
-            { en: "To load", fr: "charger" },
-            { en: "To order", fr: "commander" },
-            { en: "To market", fr: "commercialiser" },
-            { en: "To design", fr: "concevoir" },
-            { en: "To control (quality)", fr: "contrôler (la qualité)" },
-            { en: "To dig", fr: "creuser" },
-            { en: "To unpack", fr: "déballer" },
-            { en: "To unload", fr: "décharger" },
-            { en: "To draw", fr: "dessiner" },
-            { en: "To decrease", fr: "diminuer" },
-            { en: "To distribute", fr: "distribuer" },
-            { en: "To pack", fr: "emballer" },
-            { en: "To hire", fr: "embaucher" },
-            { en: "To wrap", fr: "envelopper" },
-            { en: "To label", fr: "étiqueter" },
-            { en: "To evaluate", fr: "évaluer" },
-            { en: "To ship", fr: "expédier" },
-            { en: "To extract", fr: "extraire" },
-            { en: "To manufacture", fr: "fabriquer" },
-            { en: "To operate", fr: "fonctionner" },
-            { en: "To drill", fr: "forer, percer" },
-            { en: "To train (employees)", fr: "former (les employés)" },
-            { en: "To provide", fr: "fournir" },
-            { en: "To waste", fr: "gaspiller" },
-            { en: "To industrialize", fr: "industrialiser" },
-            { en: "To innovate", fr: "innover" },
-            { en: "To integrate", fr: "intégrer" },
-            { en: "To invest", fr: "investir" },
-            { en: "To maintain", fr: "maintenir" },
-            { en: "To master", fr: "maîtriser" },
-            { en: "To handle", fr: "manipuler" },
-            { en: "To measure", fr: "mesurer" },
-            { en: "To start", fr: "mettre en route" },
-            { en: "To mount", fr: "monter" },
-            { en: "To clean", fr: "nettoyer" },
-            { en: "To optimize", fr: "optimiser" },
-            { en: "To plan", fr: "planifier" },
-            { en: "To be delayed", fr: "prendre du retard" },
-            { en: "To produce", fr: "produire" },
-            { en: "To program", fr: "programmer" },
-            { en: "To recycle", fr: "recycler" },
-            { en: "To repair", fr: "réparer" },
-            { en: "To solve (a problem)", fr: "résoudre (un problème)" },
-            { en: "To go on strike", fr: "se mettre en grève" },
-            { en: "To lift", fr: "soulever" },
-            { en: "To standardize", fr: "standardiser" },
-            { en: "To stock", fr: "stocker" },
-            { en: "To supervise", fr: "superviser" },
-            { en: "To overproduce", fr: "surproduire" },
-            { en: "To test", fr: "tester" },
-            { en: "To transform", fr: "transformer" },
-            { en: "To check", fr: "vérifier" }
+            { en: "To improve", fr: "améliorer", category: "tech" },
+            { en: "To analyze", fr: "analyser", category: "tech" },
+            { en: "To supply", fr: "approvisionner", category: "tech" },
+            { en: "To assemble", fr: "assembler", category: "tech" },
+            { en: "To increase", fr: "augmenter", category: "tech" },
+            { en: "To automate", fr: "automatiser", category: "tech" },
+            { en: "To certify", fr: "certifier", category: "tech" },
+            { en: "To load", fr: "charger", category: "tech" },
+            { en: "To order", fr: "commander", category: "tech" },
+            { en: "To market", fr: "commercialiser", category: "tech" },
+            { en: "To design", fr: "concevoir", category: "tech" },
+            { en: "To control (quality)", fr: "contrôler (la qualité)", category: "tech" },
+            { en: "To dig", fr: "creuser", category: "tech" },
+            { en: "To unpack", fr: "déballer", category: "tech" },
+            { en: "To unload", fr: "décharger", category: "tech" },
+            { en: "To draw", fr: "dessiner", category: "tech" },
+            { en: "To decrease", fr: "diminuer", category: "tech" },
+            { en: "To distribute", fr: "distribuer", category: "tech" },
+            { en: "To pack", fr: "emballer", category: "tech" },
+            { en: "To hire", fr: "embaucher", category: "tech" },
+            { en: "To wrap", fr: "envelopper", category: "tech" },
+            { en: "To label", fr: "étiqueter", category: "tech" },
+            { en: "To evaluate", fr: "évaluer", category: "tech" },
+            { en: "To ship", fr: "expédier", category: "tech" },
+            { en: "To extract", fr: "extraire", category: "tech" },
+            { en: "To manufacture", fr: "fabriquer", category: "tech" },
+            { en: "To operate", fr: "fonctionner", category: "tech" },
+            { en: "To drill", fr: "forer, percer", category: "tech" },
+            { en: "To train (employees)", fr: "former (les employés)", category: "tech" },
+            { en: "To provide", fr: "fournir", category: "tech" },
+            { en: "To waste", fr: "gaspiller", category: "tech" },
+            { en: "To industrialize", fr: "industrialiser", category: "tech" },
+            { en: "To innovate", fr: "innover", category: "tech" },
+            { en: "To integrate", fr: "intégrer", category: "tech" },
+            { en: "To invest", fr: "investir", category: "tech" },
+            { en: "To maintain", fr: "maintenir", category: "tech" },
+            { en: "To master", fr: "maîtriser", category: "tech" },
+            { en: "To handle", fr: "manipuler", category: "tech" },
+            { en: "To measure", fr: "mesurer", category: "tech" },
+            { en: "To start", fr: "mettre en route", category: "tech" },
+            { en: "To mount", fr: "monter", category: "tech" },
+            { en: "To clean", fr: "nettoyer", category: "tech" },
+            { en: "To optimize", fr: "optimiser", category: "tech" },
+            { en: "To plan", fr: "planifier", category: "tech" },
+            { en: "To be delayed", fr: "prendre du retard", category: "tech" },
+            { en: "To produce", fr: "produire", category: "tech" },
+            { en: "To program", fr: "programmer", category: "tech" },
+            { en: "To recycle", fr: "recycler", category: "tech" },
+            { en: "To repair", fr: "réparer", category: "tech" },
+            { en: "To solve (a problem)", fr: "résoudre (un problème)", category: "tech" },
+            { en: "To go on strike", fr: "se mettre en grève", category: "tech" },
+            { en: "To lift", fr: "soulever", category: "tech" },
+            { en: "To standardize", fr: "standardiser", category: "tech" },
+            { en: "To stock", fr: "stocker", category: "tech" },
+            { en: "To supervise", fr: "superviser", category: "tech" },
+            { en: "To overproduce", fr: "surproduire", category: "tech" },
+            { en: "To transform", fr: "transformer", category: "tech" },
+            { en: "To check", fr: "vérifier", category: "tech" },
+            { en: "Ball bearing", fr: "roulement à billes, palier à billes", category: "tech" },
+            { en: "Steel beam", fr: "poutre en acier", category: "tech" },
+            { en: "To adjust / set", fr: "ajuster, régler", category: "tech" },
+            { en: "Aging", fr: "vieillissement", category: "tech" },
+            { en: "Air-blast", fr: "jet d'air, à air forcé", category: "tech" },
+            { en: "Air motor hoist / Motor hoist", fr: "palan à air comprimé / palan électrique", category: "tech" },
+            { en: "To hoist", fr: "hisser", category: "tech" },
+            { en: "Allowable stress", fr: "contrainte admissible", category: "tech" },
+            { en: "Allowance", fr: "tolérance", category: "tech" },
+            { en: "Alloy", fr: "alliage", category: "tech" },
+            { en: "Anchor / Anchorage", fr: "ancrage, amarrage", category: "tech" },
+            { en: "Anchor plate", fr: "plaque d'ancrage", category: "tech" },
+            { en: "Angle", fr: "cornière, angle", category: "tech" },
+            { en: "Bevel", fr: "chanfrein", category: "tech" },
+            { en: "Bearing area", fr: "aire d'appui", category: "tech" },
+            { en: "Askew", fr: "de biais, obliquement", category: "tech" },
+            { en: "Major axis", fr: "axe principal", category: "tech" },
+            { en: "Axis of symmetry", fr: "axe de symétrie", category: "tech" },
+            { en: "Axle", fr: "essieu", category: "tech" },
+            { en: "Fixed bearing", fr: "palier fixe", category: "tech" },
+            { en: "Bend test", fr: "essai de pliage", category: "tech" },
+            { en: "Bending", fr: "flexion", category: "tech" },
+            { en: "Bid documents", fr: "documents d'appel d'offre", category: "tech" },
+            { en: "A quote", fr: "un devis", category: "tech" },
+            { en: "An invoice", fr: "une facture", category: "tech" },
+            { en: "Bill of materials", fr: "liste des matériaux / nomenclature", category: "tech" },
+            { en: "Blow torch / Blow pipe", fr: "chalumeau", category: "tech" },
+            { en: "Boiler", fr: "chaudière", category: "tech" },
+            { en: "Countersunk bolt", fr: "boulon à tête fraisée", category: "tech" },
+            { en: "Eye bolt", fr: "boulon à œillet", category: "tech" },
+            { en: "Fishplate bolt", fr: "boulon à éclisse", category: "tech" },
+            { en: "To bore / Boring", fr: "aléser / alésage", category: "tech" },
+            { en: "Brace", fr: "entretoise", category: "tech" },
+            { en: "Bracing strut", fr: "jambe de force", category: "tech" },
+            { en: "Brass", fr: "laiton", category: "tech" },
+            { en: "Copper", fr: "cuivre", category: "tech" },
+            { en: "Steel", fr: "acier", category: "tech" },
+            { en: "Iron", fr: "fer", category: "tech" },
+            { en: "Aluminum", fr: "aluminium", category: "tech" },
+            { en: "Silver / Gold", fr: "argent / or", category: "tech" },
+            { en: "Brazing", fr: "brasage", category: "tech" },
+            { en: "Welding", fr: "soudage", category: "tech" },
+            { en: "Breathing hole", fr: "trou de ventilation", category: "tech" },
+            { en: "Buckled", fr: "flambé, voilé", category: "tech" },
+            { en: "Aluminum profile / Extrusion", fr: "profilé alu rainuré", category: "tech" },
+            { en: "Built-in", fr: "encastré", category: "tech" },
+            { en: "Butt weld", fr: "soudure", category: "tech" },
+            { en: "Inverter", fr: "onduleur", category: "tech" },
+            { en: "Cotter pin", fr: "clavette, goupille", category: "tech" },
+            { en: "Counter-clockwise", fr: "sens anti-horaire", category: "tech" },
+            { en: "Crack", fr: "fissure", category: "tech" },
+            { en: "Overhead travelling crane", fr: "pont roulant", category: "tech" },
+            { en: "Critical path", fr: "chemin critique", category: "tech" },
+            { en: "Damping", fr: "amortissement", category: "tech" },
+            { en: "Defective", fr: "défectueux", category: "tech" },
+            { en: "Design", fr: "calcul, conception, dimensionnement", category: "tech" },
+            { en: "Diagram", fr: "plan de montage, schéma", category: "tech" },
+            { en: "Electrical diagram", fr: "schéma électrique", category: "tech" },
+            { en: "Electrical cabinet", fr: "armoire électrique", category: "tech" },
+            { en: "Dowel", fr: "cheville", category: "tech" },
+            { en: "Drill", fr: "forêt, foreuse, perceuse", category: "tech" },
+            { en: "Drilling", fr: "forage, perçage", category: "tech" },
+            { en: "Eccentricity", fr: "excentricité", category: "tech" },
+            { en: "Coated electrode", fr: "électrode enrobée", category: "tech" },
+            { en: "Elevator", fr: "ascenseur", category: "tech" },
+            { en: "Footprint / Land pattern", fr: "empreinte (zone de cuivre du circuit)", category: "tech" },
+            { en: "Silkscreen / Legend", fr: "sérigraphie", category: "tech" },
+            { en: "Fiducial mark", fr: "mire de calage (repère)", category: "tech" },
+            { en: "Stencil", fr: "pochoir", category: "tech" },
+            { en: "Aperture", fr: "ouverture", category: "tech" },
+            { en: "Solder paste", fr: "pâte à braser", category: "tech" },
+            { en: "SMD (Surface Mount Technology)", fr: "CMS (Composant Monté en Surface)", category: "tech" },
+            { en: "Feeder", fr: "chargeur", category: "tech" },
+            { en: "Reel", fr: "bobine", category: "tech" },
+            { en: "Tape", fr: "bande", category: "tech" },
+            { en: "Reflow soldering", fr: "brasage par refusion", category: "tech" },
+            { en: "Wave soldering", fr: "brasage à la vague", category: "tech" },
+            { en: "Selective soldering", fr: "brasage sélectif", category: "tech" },
+            { en: "Conformal coating", fr: "tropicalisation / vernissage", category: "tech" },
+            { en: "Depaneling", fr: "dégrappage", category: "tech" },
+            { en: "Routing", fr: "détourage", category: "tech" },
+            { en: "Solder bridge / Short", fr: "pont de soudure (court-circuit)", category: "tech" },
+            { en: "Tombstoning", fr: "effet Manhattan", category: "tech" },
+            { en: "Cold joint", fr: "soudure froide", category: "tech" },
+            { en: "Voiding", fr: "cavité dans le joint de soudure", category: "tech" },
+            { en: "Misalignment / Skewing", fr: "décalage / défaut d'alignement", category: "tech" },
+            { en: "Solder ball / Solder bead", fr: "bille / perle d'étain", category: "tech" },
+            { en: "Wetting failure", fr: "défaut de mouillage", category: "tech" },
+            { en: "Tooling plate", fr: "semelle", category: "tech" },
+            { en: "Chassis", fr: "châssis", category: "tech" },
+            { en: "Safety guarding", fr: "enceinte de protection", category: "tech" },
+            { en: "Casters", fr: "roulettes", category: "tech" },
+            { en: "Linear guide rail", fr: "rail de guidage linéaire", category: "tech" },
+            { en: "Carriage", fr: "patin", category: "tech" },
+            { en: "Ball screw", fr: "vis à billes", category: "tech" },
+            { en: "Timing belt", fr: "courroie crantée", category: "tech" },
+            { en: "Pulley", fr: "poulie", category: "tech" },
+            { en: "Gearbox", fr: "réducteur mécanique", category: "tech" },
+            { en: "Indexing table", fr: "table d'indexage", category: "tech" },
+            { en: "Coupling", fr: "accouplement", category: "tech" },
+            { en: "Shaft", fr: "arbre", category: "tech" },
+            { en: "Stepper motor", fr: "moteur pas à pas", category: "tech" },
+            { en: "Cylinder", fr: "vérin", category: "tech" },
+            { en: "Gripper", fr: "pince", category: "tech" },
+            { en: "Vacuum cup", fr: "ventouse de préhension", category: "tech" },
+            { en: "Vacuum generator", fr: "venturi", category: "tech" },
+            { en: "Manifold", fr: "collecteur", category: "tech" },
+            { en: "Silencer", fr: "silencieux", category: "tech" },
+            { en: "Exhaust cleaner", fr: "filtre d'échappement", category: "tech" },
+            { en: "Pressure gauge", fr: "manomètre", category: "tech" },
+            { en: "Base mounted", fr: "base de montage", category: "tech" },
+            { en: "Solenoid valve", fr: "électrovanne", category: "tech" },
+            { en: "Limit switch", fr: "fin de course mécanique", category: "tech" },
+            { en: "Rotary encoder", fr: "codeur rotatif", category: "tech" },
+            { en: "Linear encoder / Scale encoder", fr: "capteur linéaire / règle optique", category: "tech" },
+            { en: "Cable carrier", fr: "chaîne Igus", category: "tech" },
+            { en: "E-stop (Emergency stop button)", fr: "arrêt d'urgence", category: "tech" },
+            { en: "Safety light curtain", fr: "barrière immatérielle de sécurité", category: "tech" },
+            { en: "Safety door switch", fr: "contacteur de porte", category: "tech" },
+            { en: "Safety relay / PLC", fr: "module / automate de sécurité", category: "tech" },
+            { en: "Dump valve", fr: "vanne de purge", category: "tech" },
+            { en: "Soft-start valve", fr: "vanne de démarrage progressif", category: "tech" }
         ];
 
-const initialGrammar = [
+        const initialGrammar = [
             {
                 title: "Present Simple (Temps Simple)",
                 explanation: "Utilisé pour les habitudes, vérités générales ou faits permanents. Règle clé : On ajoute un '-s' ou '-es' à la 3ème personne du singulier (he, she, it). Pour les négations et questions, on utilise l'auxiliaire 'do/does'.",
@@ -674,7 +817,7 @@ const initialGrammar = [
             }
         ];
 
-        const currentVocabVersion = 13;
+        const currentVocabVersion = 15;
 
                 const req = indexedDB.open("VocabMasterUltimate", 3);
         req.onblocked = () => {
@@ -738,10 +881,16 @@ const initialGrammar = [
                         const enLower = w.en.toLowerCase();
                         if (newVocabEnMap.has(enLower)) {
                             const newWord = newVocabEnMap.get(enLower);
+                            let updated = false;
                             if (w.fr !== newWord.fr) {
                                 w.fr = newWord.fr;
-                                store.put(w);
+                                updated = true;
                             }
+                            if (newWord.category && w.category !== newWord.category) {
+                                w.category = newWord.category;
+                                updated = true;
+                            }
+                            if (updated) store.put(w);
                         } else if (oldVocabEn.has(enLower)) {
                             store.delete(w.id);
                         }
@@ -789,8 +938,6 @@ const initialGrammar = [
                 });
 
                 if (savedVersion !== String(currentVocabVersion)) {
-                    // Supprimer les versions par défaut précédentes pour mise à jour,
-                    // sans toucher aux règles personnalisées ("Since vs For" et "Used to" restent).
                     const oldGrammarTitles = new Set([
                         "la voix passive (passive voice)",
                         "conditionnels (type 3 & mixtes)",
@@ -811,7 +958,6 @@ const initialGrammar = [
                         }
                     });
 
-                    // Insérer les règles qui n'existent pas encore
                     initialGrammar.forEach(g => {
                         if (!existingTitles.has(g.title.toLowerCase())) {
                             grammarStore.add({
@@ -867,7 +1013,6 @@ const initialGrammar = [
         async function updateDashboard() {
             if (!db) return;
             try {
-                // Vocab stats
                 const allWords = await new Promise((resolve, reject) => {
                     const tx = db.transaction("words", "readonly");
                     const req = tx.objectStore("words").getAll();
@@ -875,7 +1020,6 @@ const initialGrammar = [
                     req.onerror = (e) => reject(e);
                 });
 
-                // Grammar stats
                 const allGrammar = await new Promise((resolve, reject) => {
                     const tx = db.transaction("grammar", "readonly");
                     const req = tx.objectStore("grammar").getAll();
@@ -885,31 +1029,36 @@ const initialGrammar = [
 
                 const now = Date.now();
                 
-                // Vocab counters
-                const vocabDueToday = allWords.filter(w => w.nextReview <= now).length;
-                const vocabDueWeek = allWords.filter(w => w.nextReview <= now + 7 * 86400000).length;
-                const vocabDueMonth = allWords.filter(w => w.nextReview <= now + 30 * 86400000).length;
+                const generalWords = allWords.filter(w => w.category !== 'tech');
+                const techWords = allWords.filter(w => w.category === 'tech');
+
+                // General Vocab counters
+                const vocabToday = generalWords.filter(w => w.nextReview <= now).length;
+                const vocabWeek = generalWords.filter(w => w.nextReview <= now + 7 * 86400000).length;
+                const vocabMonth = generalWords.filter(w => w.nextReview <= now + 30 * 86400000).length;
+
+                // Tech Vocab counters
+                const techToday = techWords.filter(w => w.nextReview <= now).length;
+                const techWeek = techWords.filter(w => w.nextReview <= now + 7 * 86400000).length;
+                const techMonth = techWords.filter(w => w.nextReview <= now + 30 * 86400000).length;
 
                 // Grammar counters
-                const grammarDueToday = allGrammar.filter(g => g.nextReview <= now).length;
-                const grammarDueWeek = allGrammar.filter(g => g.nextReview <= now + 7 * 86400000).length;
-                const grammarDueMonth = allGrammar.filter(g => g.nextReview <= now + 30 * 86400000).length;
+                const grammarToday = allGrammar.filter(g => g.nextReview <= now).length;
+                const grammarWeek = allGrammar.filter(g => g.nextReview <= now + 7 * 86400000).length;
+                const grammarMonth = allGrammar.filter(g => g.nextReview <= now + 30 * 86400000).length;
 
-                // Update Vocab UI elements
-                const vocabTodayEl = document.getElementById('stat-due-today');
-                if (vocabTodayEl) vocabTodayEl.innerText = vocabDueToday;
-                const vocabWeekEl = document.getElementById('stat-due-week');
-                if (vocabWeekEl) vocabWeekEl.innerText = vocabDueWeek;
-                const vocabMonthEl = document.getElementById('stat-due-month');
-                if (vocabMonthEl) vocabMonthEl.innerText = vocabDueMonth;
+                // Update UI elements
+                if (document.getElementById('stat-due-today')) document.getElementById('stat-due-today').innerText = vocabToday;
+                if (document.getElementById('stat-due-week')) document.getElementById('stat-due-week').innerText = vocabWeek;
+                if (document.getElementById('stat-due-month')) document.getElementById('stat-due-month').innerText = vocabMonth;
 
-                // Update Grammar UI elements
-                const grammarTodayEl = document.getElementById('stat-grammar-due-today');
-                if (grammarTodayEl) grammarTodayEl.innerText = grammarDueToday;
-                const grammarWeekEl = document.getElementById('stat-grammar-due-week');
-                if (grammarWeekEl) grammarWeekEl.innerText = grammarDueWeek;
-                const grammarMonthEl = document.getElementById('stat-grammar-due-month');
-                if (grammarMonthEl) grammarMonthEl.innerText = grammarDueMonth;
+                if (document.getElementById('stat-tech-due-today')) document.getElementById('stat-tech-due-today').innerText = techToday;
+                if (document.getElementById('stat-tech-due-week')) document.getElementById('stat-tech-due-week').innerText = techWeek;
+                if (document.getElementById('stat-tech-due-month')) document.getElementById('stat-tech-due-month').innerText = techMonth;
+
+                if (document.getElementById('stat-grammar-due-today')) document.getElementById('stat-grammar-due-today').innerText = grammarToday;
+                if (document.getElementById('stat-grammar-due-week')) document.getElementById('stat-grammar-due-week').innerText = grammarWeek;
+                if (document.getElementById('stat-grammar-due-month')) document.getElementById('stat-grammar-due-month').innerText = grammarMonth;
 
             } catch (e) {
                 console.error("updateDashboard error:", e);
@@ -919,43 +1068,47 @@ const initialGrammar = [
         function switchListTab(tab) {
             activeListTab = tab;
             const wordsBtn = document.getElementById('toggle-list-words');
+            const techBtn = document.getElementById('toggle-list-tech');
             const grammarBtn = document.getElementById('toggle-list-grammar');
             const listTitle = document.getElementById('list-title');
 
+            [wordsBtn, techBtn, grammarBtn].forEach(b => {
+                if (b) {
+                    b.style.background = 'transparent';
+                    b.style.color = 'var(--text-muted)';
+                    b.style.boxShadow = 'none';
+                }
+            });
+
             if (tab === 'words') {
-                wordsBtn.style.background = 'white';
-                wordsBtn.style.color = 'var(--primary)';
-                wordsBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-                
-                grammarBtn.style.background = 'transparent';
-                grammarBtn.style.color = 'var(--text-muted)';
-                grammarBtn.style.boxShadow = 'none';
-
-                listTitle.innerText = "Mots";
+                if (wordsBtn) { wordsBtn.style.background = 'white'; wordsBtn.style.color = 'var(--primary)'; wordsBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)'; }
+                if (listTitle) listTitle.innerText = "Mots Généraux";
+            } else if (tab === 'tech') {
+                if (techBtn) { techBtn.style.background = 'white'; techBtn.style.color = '#0284c7'; techBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)'; }
+                if (listTitle) listTitle.innerText = "Mots Techniques";
             } else {
-                grammarBtn.style.background = 'white';
-                grammarBtn.style.color = 'var(--primary)';
-                grammarBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-                
-                wordsBtn.style.background = 'transparent';
-                wordsBtn.style.color = 'var(--text-muted)';
-                wordsBtn.style.boxShadow = 'none';
-
-                listTitle.innerText = "Grammaire";
+                if (grammarBtn) { grammarBtn.style.background = 'white'; grammarBtn.style.color = 'var(--primary)'; grammarBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)'; }
+                if (listTitle) listTitle.innerText = "Grammaire";
             }
             renderList();
         }
 
         function renderList() {
             if (!db) return;
-            const storeName = activeListTab;
+            const tab = activeListTab;
+            const storeName = (tab === 'grammar') ? 'grammar' : 'words';
             const tx = db.transaction(storeName, "readonly");
             tx.objectStore(storeName).getAll().onsuccess = (e) => {
                 const listEl = document.getElementById('word-list');
                 if (!listEl) return;
-                const items = e.target.result;
+                let items = e.target.result;
                 
                 if (storeName === 'words') {
+                    if (tab === 'tech') {
+                        items = items.filter(w => w.category === 'tech');
+                    } else {
+                        items = items.filter(w => w.category !== 'tech');
+                    }
                     listEl.innerHTML = items.map(w => `
                     <div class="word-item" onclick="showEditForm(${w.id})">
                         <b>${w.en}</b> <span>➔ ${w.fr}</span>
@@ -972,37 +1125,42 @@ const initialGrammar = [
         function switchStudyTab(tab) {
             activeStudyTab = tab;
             const wordsBtn = document.getElementById('toggle-study-words');
+            const techBtn = document.getElementById('toggle-study-tech');
             const grammarBtn = document.getElementById('toggle-study-grammar');
 
+            [wordsBtn, techBtn, grammarBtn].forEach(b => {
+                if (b) {
+                    b.style.background = 'transparent';
+                    b.style.color = 'var(--text-muted)';
+                    b.style.boxShadow = 'none';
+                }
+            });
+
             if (tab === 'words') {
-                wordsBtn.style.background = 'white';
-                wordsBtn.style.color = 'var(--primary)';
-                wordsBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-                
-                grammarBtn.style.background = 'transparent';
-                grammarBtn.style.color = 'var(--text-muted)';
-                grammarBtn.style.boxShadow = 'none';
+                if (wordsBtn) { wordsBtn.style.background = 'white'; wordsBtn.style.color = 'var(--primary)'; wordsBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)'; }
+            } else if (tab === 'tech') {
+                if (techBtn) { techBtn.style.background = 'white'; techBtn.style.color = '#0284c7'; techBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)'; }
             } else {
-                grammarBtn.style.background = 'white';
-                grammarBtn.style.color = 'var(--primary)';
-                grammarBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-                
-                wordsBtn.style.background = 'transparent';
-                wordsBtn.style.color = 'var(--text-muted)';
-                wordsBtn.style.boxShadow = 'none';
+                if (grammarBtn) { grammarBtn.style.background = 'white'; grammarBtn.style.color = 'var(--primary)'; grammarBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)'; }
             }
             renderStudyList();
         }
 
         function renderStudyList() {
             if (!db) return;
-            const storeName = activeStudyTab;
+            const tab = activeStudyTab;
+            const storeName = (tab === 'grammar') ? 'grammar' : 'words';
             db.transaction(storeName).objectStore(storeName).getAll().onsuccess = (e) => {
                 const listEl = document.getElementById('study-list');
                 if (!listEl) return;
-                const items = e.target.result;
+                let items = e.target.result;
                 
                 if (storeName === 'words') {
+                    if (tab === 'tech') {
+                        items = items.filter(w => w.category === 'tech');
+                    } else {
+                        items = items.filter(w => w.category !== 'tech');
+                    }
                     listEl.innerHTML = items.map(w => `
                     <div class="study-card">
                         <div class="study-en">${w.en}</div>
@@ -1021,16 +1179,17 @@ const initialGrammar = [
 
         function showEditForm(id) {
             document.getElementById('edit-id').value = id || '';
-            document.getElementById('edit-type').value = activeListTab;
+            document.getElementById('edit-type').value = (activeListTab === 'grammar') ? 'grammar' : 'words';
             
             const fieldsWords = document.getElementById('fields-words');
             const fieldsGrammar = document.getElementById('fields-grammar');
             const editTitleEl = document.getElementById('edit-title');
             
-            if (activeListTab === 'words') {
+            if (activeListTab === 'words' || activeListTab === 'tech') {
                 fieldsWords.style.display = 'block';
                 fieldsGrammar.style.display = 'none';
-                editTitleEl.innerText = id ? "Éditer le mot" : "Ajouter un mot";
+                const label = (activeListTab === 'tech') ? "terme technique" : "mot";
+                editTitleEl.innerText = id ? `Éditer le ${label}` : `Ajouter un ${label}`;
                 
                 document.getElementById('edit-fr').value = '';
                 document.getElementById('edit-en').value = '';
@@ -1082,15 +1241,18 @@ const initialGrammar = [
                 const en = document.getElementById('edit-en').value.trim();
                 if (!fr || !en) return;
                 
+                const category = (activeListTab === 'tech') ? 'tech' : 'general';
+
                 if (id) {
                     store.get(Number(id)).onsuccess = (e) => {
                         const data = e.target.result;
                         data.fr = fr;
                         data.en = en;
+                        if (activeListTab === 'tech') data.category = 'tech';
                         store.put(data);
                     };
                 } else {
-                    store.add({ fr, en, repetition: 0, interval: 0, efactor: 2.5, direction: 'EN_FR', nextReview: Date.now() });
+                    store.add({ fr, en, category, repetition: 0, interval: 0, efactor: 2.5, direction: 'EN_FR', nextReview: Date.now() });
                 }
             } else {
                 const title = document.getElementById('edit-g-title').value.trim();
@@ -1116,32 +1278,29 @@ const initialGrammar = [
             };
         }
 
-        function deleteItem() {
-            const id = document.getElementById('edit-id').value;
-            const type = document.getElementById('edit-type').value;
-            if (!id) return;
-            
-            if (confirm("Supprimer cet élément ?")) {
-                const tx = db.transaction(type, "readwrite");
-                tx.objectStore(type).delete(Number(id));
-                tx.oncomplete = () => switchView('list');
-            }
-        }
-
         async function startSession(type = 'words') {
             if (!db) return;
             sessionType = type;
             const storeName = (type === 'grammar') ? 'grammar' : 'words';
             
-            const items = await new Promise(r => {
+            const rawItems = await new Promise(r => {
                 const tx = db.transaction(storeName, "readonly");
                 tx.objectStore(storeName).getAll().onsuccess = (e) => r(e.target.result);
             });
+
+            let items = rawItems;
+            if (storeName === 'words') {
+                if (type === 'tech') {
+                    items = items.filter(w => w.category === 'tech');
+                } else {
+                    items = items.filter(w => w.category !== 'tech');
+                }
+            }
             
             let due = items.filter(w => w.nextReview <= Date.now()).sort(() => Math.random() - 0.5);
             
             if (due.length === 0) {
-                const typeName = (type === 'grammar') ? "règle de grammaire" : "mot";
+                const typeName = (type === 'grammar') ? "règle de grammaire" : (type === 'tech' ? "terme technique" : "mot général");
                 alert(`Aucun ${typeName} à réviser pour le moment ! Tout est à jour.`);
                 return;
             }
@@ -1179,8 +1338,18 @@ const initialGrammar = [
                     txtEl.style.lineHeight = '1.2';
                 }
                 if (btnHint) btnHint.style.display = 'none';
+            } else if (sessionType === 'tech') {
+                if (badgeEl) badgeEl.innerText = '⚙️ VOCABULAIRE TECHNIQUE';
+                if (qEl) qEl.innerText = "Que signifie ce terme technique en Français ?";
+                if (txtEl) {
+                    txtEl.innerText = w.en;
+                    txtEl.style.fontSize = '30px';
+                    txtEl.style.fontWeight = '900';
+                    txtEl.style.lineHeight = '1.2';
+                }
+                if (btnHint) btnHint.style.display = 'flex';
             } else {
-                if (badgeEl) badgeEl.innerText = '🧠 FLASHCARD';
+                if (badgeEl) badgeEl.innerText = '🧠 VOCABULAIRE GÉNÉRAL';
                 if (qEl) qEl.innerText = "Que signifie ce mot en Français ?";
                 if (txtEl) {
                     txtEl.innerText = w.en;
@@ -1189,8 +1358,6 @@ const initialGrammar = [
                     txtEl.style.lineHeight = '1.2';
                 }
                 if (btnHint) btnHint.style.display = 'flex';
-            }
-
             document.getElementById('flash-actions').style.display = 'block';
             document.getElementById('score-actions').style.display = 'none';
         }
