@@ -10,6 +10,7 @@
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -1295,6 +1296,18 @@
             };
         }
 
+        function deleteItem() {
+            const id = document.getElementById('edit-id').value;
+            const type = document.getElementById('edit-type').value;
+            if (!id) return;
+            
+            if (confirm("Supprimer cet élément ?")) {
+                const tx = db.transaction(type, "readwrite");
+                tx.objectStore(type).delete(Number(id));
+                tx.oncomplete = () => switchView('list');
+            }
+        }
+
         async function startSession(type = 'words') {
             if (!db) await initDB();
             if (!db) {
@@ -1379,6 +1392,8 @@
                     txtEl.style.lineHeight = '1.2';
                 }
                 if (btnHint) btnHint.style.display = 'flex';
+            }
+
             document.getElementById('flash-actions').style.display = 'block';
             document.getElementById('score-actions').style.display = 'none';
         }
